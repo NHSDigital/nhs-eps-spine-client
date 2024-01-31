@@ -1,5 +1,5 @@
 {
-  "name": "@nhs/eps-spine-client",
+  "name": "@NHSDigital/eps-spine-client",
   "version": "1.0.0",
   "description": "The code to invoke the Spine client",
   "scripts": {
