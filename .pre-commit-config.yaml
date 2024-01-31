@@ -1,0 +1,44 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-merge-conflict
+        name: Check for merge conflict strings
+
+      - id: end-of-file-fixer
+        name: Fix missing newline at the end of files
+
+      - id: check-shebang-scripts-are-executable
+        name: Check shell scripts are executable
+        files: \.(sh)$
+
+      - id: check-yaml
+        name: Check pipelines configuration
+        files: ^(.github)
+
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.9.0
+    hooks:
+      - id: shellcheck
+
+  - repo: local
+    hooks:
+      - id: lint-nhs-eps-spine-client
+        name: Lint nhs-eps-spine-client
+        entry: make
+        args: ["lint-node"]
+        language: system
+        files: ^src
+        pass_filenames: false
+
+      - id: lint-githubactions
+        name: Lint github actions
+        entry: make
+        args: ["lint-githubactions"]
+        language: system
+        files: ^.github
+        types_or: [yaml]
+        pass_filenames: false
+
+fail_fast: true
+default_stages: [commit]

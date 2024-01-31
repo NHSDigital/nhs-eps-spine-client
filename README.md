@@ -1,112 +1,129 @@
-# Repository Template
+# NHS EPS Spine Client
 
-[![CI/CD Pull Request](https://github.com/nhs-england-tools/repository-template/actions/workflows/cicd-1-pull-request.yaml/badge.svg)](https://github.com/nhs-england-tools/repository-template/actions/workflows/cicd-1-pull-request.yaml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=repository-template&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=repository-template)
+![Build](https://github.com/NHSDigital/nhs-eps-spine-client/workflows/release/badge.svg?branch=main)
 
-Start with an overview or a brief description of what the project is about and what it does. For example -
+This repository contains the code to invoke the Spine client, utilised in <https://github.com/NHSDigital/prescriptionsforpatients>
 
-Welcome to our repository template designed to streamline your project setup! This robust template provides a reliable starting point for your new projects, covering an essential tech stack and encouraging best practices in documenting.
+## Functionality
 
-This repository template aims to foster a user-friendly development environment by ensuring that every included file is concise and adequately self-documented. By adhering to this standard, we can promote increased clarity and maintainability throughout your project's lifecycle. Bundled within this template are resources that pave the way for seamless repository creation. Currently supported technologies are:
+This repository encompasses the code for invoking the Spine client, designed for interaction with the Spine API. It serves as a versatile NPM dependency for both <https://github.com/NHSDigital/prescriptionsforpatients> and the Prescription Tracker application.
 
-- Terraform
-- Docker
+### Usage
 
-Make use of this repository template to expedite your project setup and enhance your productivity right from the get-go. Enjoy the advantage of having a well-structured, self-documented project that reduces overhead and increases focus on what truly matters - coding!
-
-## Table of Contents
-
-- [Repository Template](#repository-template)
-  - [Table of Contents](#table-of-contents)
-  - [Setup](#setup)
-    - [Prerequisites](#prerequisites)
-    - [Configuration](#configuration)
-  - [Usage](#usage)
-    - [Testing](#testing)
-  - [Design](#design)
-    - [Diagrams](#diagrams)
-    - [Modularity](#modularity)
-  - [Contributing](#contributing)
-  - [Contacts](#contacts)
-  - [Licence](#licence)
-
-## Setup
-
-By including preferably a one-liner or if necessary a set of clear CLI instructions we improve user experience. This should be a frictionless installation process that works on various operating systems (macOS, Linux, Windows WSL) and handles all the dependencies.
-
-Clone the repository
-
-```shell
-git clone https://github.com/nhs-england-tools/repository-template.git
-cd nhs-england-tools/repository-template
+To integrate this into your project, install the package using the following:
+- command line 
+```bash
+npm install @nhs/eps-spine-client
+```
+- package.json 
+```
+"@nhs/eps-spine-client": "latest"
 ```
 
-### Prerequisites
+## Project Structure
 
-The following software packages, or their equivalents, are expected to be installed and configured:
-
-- [docker](https://www.docker.com/) container runtime or a compatible tool, e.g. [podman](https://podman.io/),
-- [asdf](https://asdf-vm.com/) version manager,
-- [GNU make](https://www.gnu.org/software/make/) 3.82 or later,
-- [GNU coreutils](https://www.gnu.org/software/coreutils/) and [GNU binutils](https://www.gnu.org/software/binutils/) may be required to build dependencies like Python, which may need to be compiled during installation. For macOS users, this has been scripted and automated by the `dotfiles` project; please see this [script](https://github.com/nhs-england-tools/dotfiles/blob/main/assets/20-install-base-packages.macos.sh) for details,
-- [Python](https://www.python.org/) required to run Git hooks,
-- [jq](https://jqlang.github.io/jq/) a lightweight and flexible command-line JSON processor.
-
-> [!NOTE]<br>
-> The version of GNU make available by default on macOS is earlier than 3.82. You will need to upgrade it or certain `make` tasks will fail. On macOS, you will need [homebrew](https://brew.sh/) installed, then to install `make`, like so:
->
-> ```shell
-> brew install make
-> ```
->
-> You will then see instructions to fix your `$PATH` variable to make the newly installed version available. If you are using [dotfiles](https://github.com/nhs-england-tools/dotfiles), this is all done for you.
-
-### Configuration
-
-Installation and configuration of the toolchain dependencies
-
-```shell
-make config
-```
-
-## Usage
-
-After a successful installation, provide an informative example of how this project can be used. Additional code snippets, screenshots and demos work well in this space. You may also link to the other documentation resources, e.g. the [User Guide](./docs/user-guide.md) to demonstrate more use cases and to show more features.
-
-### Testing
-
-There are `make` tasks for you to configure to run your tests.  Run `make test` to see how they work.  You should be able to use the same entry points for local development as in your CI pipeline.
-
-## Design
-
-### Diagrams
-
-The [C4 model](https://c4model.com/) is a simple and intuitive way to create software architecture diagrams that are clear, consistent, scalable and most importantly collaborative. This should result in documenting all the system interfaces, external dependencies and integration points.
-
-![Repository Template](./docs/diagrams/Repository_Template_GitHub_Generic.png)
-
-### Modularity
-
-Most of the projects are built with customisability and extendability in mind. At a minimum, this can be achieved by implementing service level configuration options and settings. The intention of this section is to show how this can be used. If the system processes data, you could mention here for example how the input is prepared for testing - anonymised, synthetic or live data.
+- `.devcontainer` Contains a dockerfile and vscode devcontainer definition
+- `.github` Contains github workflows that are used for building and deploying from pull requests and releases
+- `scripts` Contains a script for checking Python licenses
+- `src` Contains the source code for the project
+- `tests` Contains the tests for the project
 
 ## Contributing
 
-Describe or link templates on how to raise an issue, feature request or make a contribution to the codebase. Reference the other documentation files, like
+Contributions to this project are welcome from anyone, providing that they conform to the [guidelines for contribution](./CONTRIBUTING.md) and the [community code of conduct](./CODE_OF_CONDUCT.md).
 
-- Environment setup for contribution, i.e. `CONTRIBUTING.md`
-- Coding standards, branching, linting, practices for development and testing
-- Release process, versioning, changelog
-- Backlog, board, roadmap, ways of working
-- High-level requirements, guiding principles, decision records, etc.
+### Licensing
 
-## Contacts
+This code is dual licensed under the MIT license and the OGL (Open Government License). Any new work added to this repository must conform to the conditions of these licenses. In particular this means that this project may not depend on GPL-licensed or AGPL-licensed libraries, as these would violate the terms of those libraries' licenses.
 
-Provide a way to contact the owners of this project. It can be a team, an individual or information on the means of getting in touch via active communication channels, e.g. opening a GitHub discussion, raising an issue, etc.
+The contents of this repository are protected by Crown Copyright (C).
 
-## Licence
+## Development
 
-> The [LICENCE.md](./LICENCE.md) file will need to be updated with the correct year and owner
+It is recommended that you use visual studio code and a devcontainer as this will install all necessary components and correct versions of tools and languages.  
+See <https://code.visualstudio.com/docs/devcontainers/containers> for details on how to set this up on your host machine.  
+There is also a workspace file in .vscode that should be opened once you have started the devcontainer. The workspace file can also be opened outside of a devcontainer if you wish.
 
-Unless stated otherwise, the codebase is released under the MIT License. This covers both the codebase and any sample code in the documentation.
+All commits must be made using [signed commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits)
 
-Any HTML or Markdown documentation is [© Crown Copyright](https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/) and available under the terms of the [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
+Once the steps at the link above have been completed. Add to your ~/.gnupg/gpg.conf as below:
+
+```
+use-agent
+pinentry-mode loopback
+```
+
+and to your ~/.gnupg/gpg-agent.conf as below:
+
+```
+allow-loopback-pinentry
+```
+
+As described here:
+<https://stackoverflow.com/a/59170001>
+
+You will need to create the files, if they do not already exist.
+This will ensure that your VSCode bash terminal prompts you for your GPG key password.
+
+You can cache the gpg key passphrase by following instructions at <https://superuser.com/questions/624343/keep-gnupg-credentials-cached-for-entire-user-session>
+
+### CI Setup
+
+The GitHub Actions require a secret to exist on the repo called "SONAR_TOKEN".
+This can be obtained from [SonarCloud](https://sonarcloud.io/)
+as described [here](https://docs.sonarsource.com/sonarqube/latest/user-guide/user-account/generating-and-using-tokens/).
+You will need the "Execute Analysis" permission for the project (NHSDigital_nhs-eps-spine-client) in order for the token to work.
+
+### Pre-commit hooks
+
+Some pre-commit hooks are installed as part of the install above, to run basic lint checks and ensure you can't accidentally commit invalid changes.
+The pre-commit hook uses python package pre-commit and is configured in the file .pre-commit-config.yaml.
+A combination of these checks are also run in CI.
+
+### Make commands
+
+There are `make` commands that are run as part of the CI pipeline and help alias some functionality during development.
+
+#### Install targets
+
+- `install` Installs project dependencies
+
+#### Build targets
+
+- `build` Builds the project
+
+#### Linting and testing
+
+- `lint` Performs linting for all code
+- `test` Runs tests for the project
+
+#### Clean and deep-clean targets
+
+- `clean` Clears up any files that have been generated by building or testing locally
+- `deep-clean` Runs clean target and also removes any node_modules installed locally
+
+#### Check licenses
+
+- `check-licenses` Checks licenses for all packages used
+
+### GitHub folder
+
+This .github folder contains workflows and templates related to github
+
+- `dependabot.yml` Dependabot definition file
+- `pull_request_template.yml` Template for pull requests
+
+Workflows are in the .github/workflows folder
+
+- `combine-dependabot-prs.yml` Workflow for combining dependabot pull requests. Runs on demand
+- `dependabot_auto_approve_and_merge.yml` Workflow to auto merge dependabot updates
+- `pr-link.yaml` This workflow template links Pull Requests to Jira tickets and runs when a pull request is opened
+- `pr_title_check.yml` Workflow to check the format of a pull request is compliant with the project standards. See [guidelines for contribution](./CONTRIBUTING.md) for details
+- `pull_request.yml` Called when pull request is opened or updated. Runs quality_checks.yml
+- `quality_checks.yml` Workflow verifies and enhances code quality through setup, dependencies, checks, and SonarCloud scanning
+- `release.yml` Run when code is merged to main branch or a tag starting v is pushed. Calls quality_checks.yml
+- `rename_dependabot_prs.yml` Renames dependabot pull requests to comply with project standards
+
+### Running a Release
+
+Details of running the release can be found in [RELEASE.md](./RELEASE.md)

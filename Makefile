@@ -1,37 +1,43 @@
-# This file is for you! Edit it to implement your own hooks (make targets) into
-# the project as automated steps to be executed on locally and in the CD pipeline.
+default: deep-clean install lint check-licenses build test
 
-include scripts/init.mk
+install: install-python install-hooks install-node
 
-# ==============================================================================
+install-python:
+	poetry install
 
-# Example CI/CD targets are: dependencies, build, publish, deploy, clean, etc.
+install-hooks:
+	poetry run pre-commit install --install-hooks --overwrite
 
-dependencies: # Install dependencies needed to build and test the project @Pipeline
-	# TODO: Implement installation of your project dependencies
+install-node:
+	npm ci
 
-build: # Build the project artefact @Pipeline
-	# TODO: Implement the artefact build step
+build:
+	npm run build
 
-publish: # Publish the project artefact @Pipeline
-	# TODO: Implement the artefact publishing step
+lint: lint-node lint-githubactions
 
-deploy: # Deploy the project artefact to the target environment @Pipeline
-	# TODO: Implement the artefact deployment step
+lint-node:
+	npm run lint
 
-clean:: # Clean-up project resources (main) @Operations
-	# TODO: Implement project resources clean-up step
+lint-githubactions:
+	actionlint
 
-config:: # Configure development environment (main) @Configuration
-	# TODO: Use only 'make' targets that are specific to this project, e.g. you may not need to install Node.js
-	make \
-		terraform-install
+test: build
+	npm run test
 
-# ==============================================================================
+clean:
+	rm -rf coverage
+	rm -rf lib
+	rm -f tsconfig.tsbuildinfo
 
-${VERBOSE}.SILENT: \
-	build \
-	clean \
-	config \
-	dependencies \
-	deploy \
+deep-clean: clean
+	rm -rf .venv
+	find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
+
+check-licenses: check-licenses-node check-licenses-python
+
+check-licenses-node:
+	npm run check-licenses
+
+check-licenses-python:
+	scripts/check_python_licenses.sh
