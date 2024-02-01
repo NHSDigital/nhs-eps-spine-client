@@ -23,7 +23,7 @@ npm install @NHSDigital/eps-spine-client
 - package.json
 
 ```
-"@NHSDigital/eps-spine-client": "latest"
+"@NHSDigital/eps-spine-client": "^1.0.0"
 ```
 
 ## Project Structure
