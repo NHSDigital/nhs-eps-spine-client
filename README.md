@@ -1,6 +1,6 @@
 # NHS EPS Spine Client
 
-[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=NHSDigital_nhs-fhir-middy-error-handler)](https://sonarcloud.io/summary/new_code?id=NHSDigital_nhs-fhir-middy-error-handler)
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=NHSDigital_nhs-eps-spine-client)](https://sonarcloud.io/summary/new_code?id=NHSDigital_nhs-eps-spine-client)
 
 This repository contains the code to invoke the Spine client, utilised in <https://github.com/NHSDigital/prescriptionsforpatients>
 
