@@ -6,20 +6,12 @@
   "build": {
     "dockerfile": "Dockerfile",
     "context": "..",
-    "args": {}
+    "args": {},
   },
   "mounts": [
     "source=${env:HOME}${env:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind",
-    "source=${env:HOME}${env:USERPROFILE}/.gnupg,target=/home/vscode/.gnupg,type=bind"
+    "source=${env:HOME}${env:USERPROFILE}/.gnupg,target=/home/vscode/.gnupg,type=bind",
   ],
-  // Features to add to the dev container. More info: https://containers.dev/features.
-  "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
-      "version": "latest",
-      "moby": "true",
-      "installDockerBuildx": "true"
-    },
-  },
   "customizations": {
     "vscode": {
       "extensions": [
@@ -34,7 +26,7 @@
         "rvest.vs-code-prettier-eslint",
         "esbenp.prettier-vscode",
         "ms-azuretools.vscode-docker",
-        "tamasfe.even-better-toml"
+        "tamasfe.even-better-toml",
       ],
       "settings": {
         "python.defaultInterpreterPath": "/workspaces/nhs-eps-spine-client/.venv/bin/python",
@@ -46,31 +38,31 @@
         "editor.formatOnSaveMode": "file",
         "vs-code-prettier-eslint.prettierLast": false,
         "[javascript]": {
-          "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+          "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
         },
         "[typescript]": {
-          "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+          "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
         },
         "[json]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
         },
         "[jsonc]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
         },
         "[yaml]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
         },
         "[markdown]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
         },
         "[dockerfile]": {
-          "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+          "editor.defaultFormatter": "ms-azuretools.vscode-docker",
         },
         "[toml]": {
-          "editor.defaultFormatter": "tamasfe.even-better-toml"
+          "editor.defaultFormatter": "tamasfe.even-better-toml",
         },
         "files.associations": {
-          ".releaserc": "json"
+          ".releaserc": "json",
         },
         "cSpell.words": [
           "fhir",
@@ -78,10 +70,10 @@
           "pino",
           "serialisation",
           "devcontainer",
-          "sonarcloud"
-        ]
-      }
-    }
+          "sonarcloud",
+        ],
+      },
+    },
   },
-  "postCreateCommand": "rm -f ~/.docker/config.json; git config --global --add safe.directory /workspaces/nhs-eps-spine-client; make install; direnv allow ."
+  "postCreateCommand": "rm -f ~/.docker/config.json; git config --global --add safe.directory /workspaces/nhs-eps-spine-client; make install; direnv allow .",
 }
