@@ -1,6 +1,7 @@
 # NHS EPS Spine Client
 
-![Build](https://github.com/NHSDigital/nhs-eps-spine-client/workflows/release/badge.svg?branch=main)
+[![Release to GitHub Packages](https://github.com/NHSDigital/nhs-eps-spine-client/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/NHSDigital/nhs-eps-spine-client/actions/workflows/release.yml)
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=NHSDigital_nhs-eps-spine-client)](https://sonarcloud.io/summary/new_code?id=NHSDigital_nhs-eps-spine-client)
 
 This repository contains the code to invoke the Spine client, utilised in <https://github.com/NHSDigital/prescriptionsforpatients>
 
@@ -11,13 +12,17 @@ This repository encompasses the code for invoking the Spine client, designed for
 ### Usage
 
 To integrate this into your project, install the package using the following:
-- command line 
+
+- command line
+
 ```bash
-npm install @nhs/eps-spine-client
+npm install @NHSDigital/eps-spine-client
 ```
-- package.json 
+
+- package.json
+
 ```
-"@nhs/eps-spine-client": "latest"
+"@NHSDigital/eps-spine-client": "^1.0.0"
 ```
 
 ## Project Structure
