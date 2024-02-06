@@ -6,7 +6,7 @@ import axios, {Axios, AxiosRequestConfig, AxiosResponse} from "axios"
 import {APIGatewayProxyEventHeaders} from "aws-lambda"
 
 // timeout in ms to wait for response from spine to avoid lambda timeout
-const SPINE_TIMEOUT = 45000
+const SPINE_TIMEOUT = 43000
 
 export class LiveSpineClient implements SpineClient {
   private readonly SPINE_URL_SCHEME = "https"
@@ -76,7 +76,7 @@ export class LiveSpineClient implements SpineClient {
         timeout: SPINE_TIMEOUT
       })
 
-      // This can be removed when https://nhsd-jira.digital.nhs.uk/browse/AEA-3448 is complete
+      // This can be removed when https://nhsd-jira.digital.nhs.uk/browse/AEA-3448 is complete change comment
       if (
         response.data["statusCode"] !== undefined &&
         response.data["statusCode"] !== "1" &&
