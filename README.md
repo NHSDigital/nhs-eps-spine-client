@@ -12,8 +12,8 @@ This repository encompasses the code for invoking the Spine client, designed for
 ### Versions
 
 This project has a dependency on @aws-lambda-powertools/logger.  
-If you are using @aws-lambda-powertools/logger in your project, and you are using version 1.x of @aws-lambda-powertools/logger, then you must use version 1.x of this module
-If you are using @aws-lambda-powertools/logger in your project, and you are using version 2.x of @aws-lambda-powertools/logger, then you must use version 2.x of this module
+If you are using @aws-lambda-powertools/logger in your project, and you are using version 1.x of @aws-lambda-powertools/logger, then you must use version 1.x of this module.  
+If you are using @aws-lambda-powertools/logger in your project, and you are using version 2.x of @aws-lambda-powertools/logger, then you must use version 2.x of this module.
 
 ### Usage
 
