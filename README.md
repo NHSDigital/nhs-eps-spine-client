@@ -9,6 +9,12 @@ This repository contains the code to invoke the Spine client, utilised in <https
 
 This repository encompasses the code for invoking the Spine client, designed for interaction with the Spine API. It serves as a versatile NPM dependency for both <https://github.com/NHSDigital/prescriptionsforpatients> and the Prescription Tracker application.
 
+### Versions
+
+This project has a dependency on @aws-lambda-powertools/logger.  
+If you are using @aws-lambda-powertools/logger in your project, and you are using version 1.x of @aws-lambda-powertools/logger, then you must use version 1.x of this module.  
+If you are using @aws-lambda-powertools/logger in your project, and you are using version 2.x of @aws-lambda-powertools/logger, then you must use version 2.x of this module.
+
 ### Usage
 
 To integrate this into your project, install the package using the following:
@@ -22,7 +28,7 @@ npm install @NHSDigital/eps-spine-client
 - package.json
 
 ```
-"@NHSDigital/eps-spine-client": "^1.0.0"
+"@NHSDigital/eps-spine-client": "^2.0.0"
 ```
 
 ## Project Structure
