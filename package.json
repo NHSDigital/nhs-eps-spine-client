@@ -42,7 +42,7 @@
     "@aws-lambda-powertools/logger": "^2.1.1",
     "aws-lambda": "^1.0.7",
     "axios": "^1.7.1",
-    "conventional-changelog-eslint": "5.0.0"
+    "conventional-changelog-eslint": "6.0.0"
   },
   "bugs": {
     "url": "https://github.com/NHSDigital/nhs-eps-spine-client/issues"
