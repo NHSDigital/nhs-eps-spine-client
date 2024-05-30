@@ -24,7 +24,8 @@ export class LiveSpineClient implements SpineClient {
     this.httpsAgent = new Agent({
       cert: process.env.SpinePublicCertificate,
       key: process.env.SpinePrivateKey,
-      ca: process.env.SpineCAChain
+      ca: process.env.SpineCAChain,
+      keepAlive: true
     })
     this.logger = logger
     this.axiosInstance = axios.create()
