@@ -2,7 +2,12 @@ import {Logger} from "@aws-lambda-powertools/logger"
 import {serviceHealthCheck} from "./status"
 import {SpineClient, SpineStatus} from "./spine-client"
 import {Agent} from "https"
-import axios, {Axios, AxiosRequestConfig, AxiosResponse} from "axios"
+import axios, {
+  Axios,
+  AxiosError,
+  AxiosRequestConfig,
+  AxiosResponse
+} from "axios"
 import {APIGatewayProxyEventHeaders} from "aws-lambda"
 
 // timeout in ms to wait for response from spine to avoid lambda timeout
@@ -34,13 +39,13 @@ export class LiveSpineClient implements SpineClient {
       return config
     })
 
-    this.axiosInstance.interceptors.response.use((response) => {
+    this.axiosInstance.interceptors.response.use((response: AxiosResponse) => {
       const currentTime = new Date().getTime()
       const startTime = response.config.headers["request-startTime"]
       this.logger.info("spine request duration", {spine_duration: currentTime - startTime})
 
       return response
-    }, (error) => {
+    }, (error: AxiosError) => {
       const currentTime = new Date().getTime()
       const startTime = error.config?.headers["request-startTime"]
       this.logger.info("spine request duration", {spine_duration: currentTime - startTime})
