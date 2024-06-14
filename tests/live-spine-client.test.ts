@@ -104,4 +104,39 @@ describe("live spine client", () => {
     }
     await expect(spineClient.getPrescriptions(headers)).rejects.toThrow("timeout of 45000ms exceeded")
   })
+
+  test("should not throw error when one unsuccessful and one successful http request", async () => {
+    mock
+      .onGet("https://spine/mm/patientfacingprescriptions").networkErrorOnce()
+      .onGet("https://spine/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
+
+    const mockLoggerWarn = jest.spyOn(Logger.prototype, "warn")
+
+    const spineClient = new LiveSpineClient(logger)
+    const headers: APIGatewayProxyEventHeaders = {
+      "nhsd-nhslogin-user": "P9:9912003071"
+    }
+    const spineResponse = await spineClient.getPrescriptions(headers)
+
+    expect(spineResponse.status).toBe(200)
+    expect(spineResponse.data).toStrictEqual({resourceType: "Bundle"})
+    expect(mockLoggerWarn).toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 1")
+  })
+
+  test("should retry only 3 times when http request errors", async () => {
+    mock.onGet("https://spine/mm/patientfacingprescriptions").networkError()
+    const mockLoggerWarn = jest.spyOn(Logger.prototype, "warn")
+
+    const spineClient = new LiveSpineClient(logger)
+    const headers: APIGatewayProxyEventHeaders = {
+      "nhsd-nhslogin-user": "P9:9912003071"
+    }
+    await expect(spineClient.getPrescriptions(headers)).rejects.toThrow("Network Error")
+    expect(mockLoggerWarn).toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 1")
+    expect(mockLoggerWarn).toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 2")
+    expect(mockLoggerWarn).toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 3")
+    expect(mockLoggerWarn).not.toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 4")
+  })
+
+
 })
