@@ -104,4 +104,19 @@ describe("live spine client", () => {
     }
     await expect(spineClient.getPrescriptions(headers)).rejects.toThrow("timeout of 45000ms exceeded")
   })
+
+  test("should not throw error when one unsuccessful and one successful http request", async () => {
+    mock
+      .onGet("https://spine/mm/patientfacingprescriptions").networkErrorOnce()
+      .onGet("https://spine/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
+
+    const spineClient = new LiveSpineClient(logger)
+    const headers: APIGatewayProxyEventHeaders = {
+      "nhsd-nhslogin-user": "P9:9912003071"
+    }
+    const spineResponse = await spineClient.getPrescriptions(headers)
+
+    expect(spineResponse.status).toBe(200)
+    expect(spineResponse.data).toStrictEqual({resourceType: "Bundle"})
+  })
 })

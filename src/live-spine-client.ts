@@ -3,12 +3,13 @@ import {serviceHealthCheck} from "./status"
 import {SpineClient, SpineStatus} from "./spine-client"
 import {Agent} from "https"
 import axios, {
-  Axios,
   AxiosError,
+  AxiosInstance,
   AxiosRequestConfig,
   AxiosResponse
 } from "axios"
 import {APIGatewayProxyEventHeaders} from "aws-lambda"
+import axiosRetry from "axios-retry"
 
 // timeout in ms to wait for response from spine to avoid lambda timeout
 const SPINE_TIMEOUT = 45000
@@ -19,7 +20,7 @@ export class LiveSpineClient implements SpineClient {
   private readonly spineASID: string | undefined
   private readonly httpsAgent: Agent
   private readonly spinePartyKey: string | undefined
-  private readonly axiosInstance: Axios
+  private readonly axiosInstance: AxiosInstance
   private readonly logger: Logger
 
   constructor(logger: Logger) {
@@ -34,6 +35,7 @@ export class LiveSpineClient implements SpineClient {
     })
     this.logger = logger
     this.axiosInstance = axios.create()
+    axiosRetry(this.axiosInstance, {retries: 3})
     this.axiosInstance.interceptors.request.use((config) => {
       config.headers["request-startTime"] = new Date().getTime()
       return config
