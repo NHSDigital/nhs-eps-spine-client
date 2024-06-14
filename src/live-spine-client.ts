@@ -35,7 +35,10 @@ export class LiveSpineClient implements SpineClient {
     })
     this.logger = logger
     this.axiosInstance = axios.create()
-    axiosRetry(this.axiosInstance, {retries: 3})
+    axiosRetry(this.axiosInstance, {
+      retries: 3,
+      onRetry: this.onAxiosRetry
+    })
     this.axiosInstance.interceptors.request.use((config) => {
       config.headers["request-startTime"] = new Date().getTime()
       return config
@@ -165,5 +168,10 @@ export class LiveSpineClient implements SpineClient {
       process.env.SpinePrivateKey !== "ChangeMe" &&
       process.env.SpineCAChain !== "ChangeMe"
     )
+  }
+
+  onAxiosRetry = (retryCount, error) => {
+    this.logger.warn(error)
+    this.logger.warn(`Call to spine failed - retrying. Retry count ${retryCount}`)
   }
 }
