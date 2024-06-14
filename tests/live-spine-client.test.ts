@@ -110,7 +110,7 @@ describe("live spine client", () => {
       .onGet("https://spine/mm/patientfacingprescriptions").networkErrorOnce()
       .onGet("https://spine/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
 
-    const mockLoggerInfo = jest.spyOn(Logger.prototype, "warn")
+    const mockLoggerWarn = jest.spyOn(Logger.prototype, "warn")
 
     const spineClient = new LiveSpineClient(logger)
     const headers: APIGatewayProxyEventHeaders = {
@@ -120,6 +120,6 @@ describe("live spine client", () => {
 
     expect(spineResponse.status).toBe(200)
     expect(spineResponse.data).toStrictEqual({resourceType: "Bundle"})
-    expect(mockLoggerInfo).toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 1")
+    expect(mockLoggerWarn).toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 1")
   })
 })
