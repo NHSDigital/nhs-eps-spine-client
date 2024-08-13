@@ -4,7 +4,7 @@
   "description": "The code to invoke the Spine client",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint . --fix",
+    "lint": "eslint  --max-warnings 0 --fix --config ./eslint.config.mjs .",
     "test": "POWERTOOLS_DEV=true NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage",
     "check-licenses": "license-checker --failOn GPL --failOn LGPL"
   },
@@ -28,11 +28,10 @@
     "@typescript-eslint/eslint-plugin": "^8.1.0",
     "@typescript-eslint/parser": "^8.1.0",
     "axios-mock-adapter": "^2.0.0",
-    "eslint": "^8.57.0",
+    "eslint": "^9.9.0",
     "eslint-plugin-import-newlines": "^1.4.0",
     "jest": "^29.7.0",
     "license-checker": "^25.0.1",
-    "prettier": "^3.3.3",
     "semantic-release": "^24.0.0",
     "ts-jest": "^29.2.4",
     "ts-node": "^10.9.2",
