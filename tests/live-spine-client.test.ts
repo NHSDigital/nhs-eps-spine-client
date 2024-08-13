@@ -138,5 +138,4 @@ describe("live spine client", () => {
     expect(mockLoggerWarn).not.toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 4")
   })
 
-
 })
