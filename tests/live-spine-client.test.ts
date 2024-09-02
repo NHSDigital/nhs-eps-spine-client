@@ -181,7 +181,9 @@ describe("live spine client", () => {
     const prescriptionId = "12345"
     const prescriberOds = "ABCD"
 
-    await expect(spineClient.prescriptionSearch(requestId, prescriptionId, prescriberOds)).rejects.toThrow("Network Error")
+    await expect(
+      spineClient.prescriptionSearch(requestId, prescriptionId, prescriberOds)
+    ).rejects.toThrow("Network Error")
   })
 
   test("throw error on SOAP request timeout", async () => {
@@ -192,7 +194,9 @@ describe("live spine client", () => {
     const prescriptionId = "12345"
     const prescriberOds = "ABCD"
 
-    await expect(spineClient.prescriptionSearch(requestId, prescriptionId, prescriberOds)).rejects.toThrow("timeout of 45000ms exceeded")
+    await expect(
+      spineClient.prescriptionSearch(requestId, prescriptionId, prescriberOds)
+    ).rejects.toThrow("timeout of 45000ms exceeded")
   })
 
   test("return health check status as 'pass' if certificate is not configured", async () => {
