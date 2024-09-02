@@ -174,4 +174,133 @@ export class LiveSpineClient implements SpineClient {
     this.logger.warn(error)
     this.logger.warn(`Call to spine failed - retrying. Retry count ${retryCount}`)
   }
+
+  async prescriptionSearch(
+    requestId: string,
+    prescriptionId: string,
+    prescriberOds: string
+  ): Promise<AxiosResponse> {
+    const soapAction = "urn:nhs:names:services:mmquery/PRESCRIPTIONSEARCH_SM01"
+    const endpoint = this.getSpineEndpoint("syncservice-mm/mm")
+
+    const soapEnvelope = `
+    <?xml version="1.0" encoding="utf-8"?>
+    <SOAP-ENV:Envelope 
+      xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" 
+      xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" 
+      xmlns:hl7="urn:hl7-org:v3">
+        <SOAP-ENV:Header>
+            <wsa:MessageID>uuid:${requestId}</wsa:MessageID>
+            <wsa:Action>${soapAction}</wsa:Action>
+            <wsa:To>${endpoint}</wsa:To>
+            <wsa:From><wsa:Address/></wsa:From>
+            <wsa:ReplyTo><wsa:Address/></wsa:ReplyTo>
+            <hl7:communicationFunctionRcv>
+                <hl7:device>
+                    <hl7:id root="1.2.826.0.1285.0.2.0.107" extension="200000002066"/>
+                </hl7:device>
+            </hl7:communicationFunctionRcv>
+            <hl7:communicationFunctionSnd>
+                <hl7:device>
+                    <hl7:id root="1.2.826.0.1285.0.2.0.107" extension="200000002066"/>
+                </hl7:device>
+            </hl7:communicationFunctionSnd>
+        </SOAP-ENV:Header>
+        <SOAP-ENV:Body>
+            <PRESCRIPTIONSEARCH_SM01 xmlns="urn:hl7-org:v3">
+                <id root="${requestId}"/>
+                <creationTime value="${this.getCurrentTimestamp()}"/>
+                <versionCode code="V3NPfIT4.2.00"/>
+                <interactionId root="2.16.840.1.113883.2.1.3.2.4.12" extension="PRESCRIPTIONSEARCH_SM01"/>
+                <processingCode code="P"/>
+                <processingModeCode code="T"/>
+                <acceptAckCode code="NE"/>
+                <communicationFunctionRcv>
+                    <device classCode="DEV" determinerCode="INSTANCE">
+                        <id root="1.2.826.0.1285.0.2.0.107" extension="200000002066"/>
+                    </device>
+                </communicationFunctionRcv>
+                <communicationFunctionSnd>
+                    <device classCode="DEV" determinerCode="INSTANCE">
+                        <id root="1.2.826.0.1285.0.2.0.107" extension="200000002066"/>
+                    </device>
+                </communicationFunctionSnd>
+                <ControlActEvent classCode="CACT" moodCode="EVN">
+                    <author typeCode="AUT">
+                        <AgentPersonSDS classCode="AGNT">
+                            <id root="1.2.826.0.1285.0.2.0.67" extension="123456123456"/>
+                            <agentPersonSDS classCode="PSN" determinerCode="INSTANCE">
+                                <id root="1.2.826.0.1285.0.2.0.65" extension="123456123456"/>
+                            </agentPersonSDS>
+                            <part typeCode="PART">
+                                <partSDSRole classCode="ROL">
+                                    <id root="1.2.826.0.1285.0.2.1.104" extension="123456123456"/>
+                                </partSDSRole>
+                            </part>
+                        </AgentPersonSDS>
+                    </author>
+                    <author1 typeCode="AUT">
+                        <AgentSystemSDS classCode="AGNT">
+                            <agentSystemSDS classCode="DEV" determinerCode="INSTANCE">
+                                <id root="1.2.826.0.1285.0.2.0.107" extension="200000002066"/>
+                            </agentSystemSDS>
+                        </AgentSystemSDS>
+                    </author1>
+                    <query>
+                        <prescriptionId value="${prescriptionId}"/>
+                        <prescriberOrganisation value="${prescriberOds}"/>
+                    </query>
+                </ControlActEvent>
+            </PRESCRIPTIONSEARCH_SM01>
+        </SOAP-ENV:Body>
+    </SOAP-ENV:Envelope>`
+
+    try {
+      const response = await this.axiosInstance.post(endpoint, soapEnvelope, {
+        headers: {
+          "Content-Type": "text/xml",
+          "SOAPAction": soapAction
+        },
+        httpsAgent: this.httpsAgent,
+        timeout: SPINE_TIMEOUT
+      })
+
+      return response
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          this.logger.error("error in response from spine", {
+            response: {
+              data: error.response.data,
+              status: error.response.status,
+              Headers: error.response.headers
+            },
+            request: {
+              method: error.request?.path,
+              params: error.request?.params,
+              headers: error.request?.headers,
+              host: error.request?.host
+            }
+          })
+        } else if (error.request) {
+          this.logger.error("error in request to spine", {
+            method: error.request.method,
+            path: error.request.path,
+            params: error.request.params,
+            headers: error.request.headers,
+            host: error.request.host
+          })
+        } else {
+          this.logger.error("general error calling spine", {error})
+        }
+      } else {
+        this.logger.error("general error", {error})
+      }
+      throw error
+    }
+  }
+
+  private getCurrentTimestamp(): string {
+    return Math.floor(Date.now() / 1000).toString()
+  }
 }
