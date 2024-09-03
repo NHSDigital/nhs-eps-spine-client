@@ -4,6 +4,7 @@ const {readFileSync} = require("fs")
 const commitTemplate = readFileSync("./releaseNotesTemplates/commit.hbs").toString()
  
 module.exports = {
+  tagFormat: "v${version}",
   branches: [
     {
       name: "main"
