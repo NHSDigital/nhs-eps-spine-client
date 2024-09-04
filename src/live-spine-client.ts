@@ -11,19 +11,13 @@ import axios, {
 import {APIGatewayProxyEventHeaders} from "aws-lambda"
 import axiosRetry from "axios-retry"
 import {handleCallError, handleErrorResponse} from "./utils"
-import path from "path"
-import fs from "fs"
-import {fileURLToPath} from "url"
 import Mustache from "mustache"
+import CLINICAL_CONTENT_VIEW_TEMPLATE from "./resources/clinical_content_view"
 
 // timeout in ms to wait for response from spine to avoid lambda timeout
 const SPINE_TIMEOUT = 45000
 
 // Clinical Content View Globals
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const CLINICAL_CONTENT_VIEW_TEMPLATE =
-  fs.readFileSync(path.join(__dirname, "resources/clinical_content_view_sandbox.xml"), "utf8")
-    .replace(/\n/g, "\r\n")
 const CLINICAL_VIEW_REQUEST_PATH = "syncservice-pds/pds"
 
 export interface ClinicalViewParams {

@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
+/* eslint-disable max-len */
+export default `<?xml version="1.0" encoding="utf-8"?>
 <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:hl7="urn:hl7-org:v3">
     <SOAP-ENV:Header>
         <wsa:MessageID>uuid:{{messageGUID}}</wsa:MessageID>
@@ -83,4 +84,4 @@
             </ControlActEvent>
         </QURX_IN000005UK98>
     </SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
+</SOAP-ENV:Envelope>`

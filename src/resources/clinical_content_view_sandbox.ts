@@ -1,4 +1,5 @@
-<?xml version='1.0' encoding='UTF-8'?>
+/* eslint-disable max-len */
+export default `<?xml version='1.0' encoding='UTF-8'?>
 <SOAP:Envelope xmlns:crs="http://national.carerecords.nhs.uk/schema/crs/"
     xmlns:SOAP="http://schemas.xmlsoap.org/soap/envelope/"
     xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns="urn:hl7-org:v3"
@@ -59,7 +60,7 @@
                     <subject typeCode="SUBJ">
                         <PrescriptionJsonQueryResponse
                             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                            xsi:schemaLocation="urn:hl7-org:v3 ..\schemas\PORX_MT000006UK02.xsd"
+                            xsi:schemaLocation="urn:hl7-org:v3 ..\\schemas\\PORX_MT000006UK02.xsd"
                             classCode="ORGANIZER" moodCode="EVN">
                             <id root="F8966CE0-E034-11DA-863F-A7A405B41481" />
                             <effectiveTime value="20050922101500" />
@@ -246,4 +247,4 @@
             </PORX_IN000006UK98>
         </prescriptionClinicalViewResponse>
     </SOAP:Body>
-</SOAP:Envelope>
+</SOAP:Envelope>`
