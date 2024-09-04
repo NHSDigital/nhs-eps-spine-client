@@ -15,7 +15,10 @@ export interface SpineClient {
   getStatus(): Promise<SpineStatus>
   getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders): Promise<AxiosResponse>
   isCertificateConfigured(): boolean
-  clinicalView(params: ClinicalViewParams): Promise<AxiosResponse>
+  clinicalView(
+    inboundHeaders: APIGatewayProxyEventHeaders,
+    params: ClinicalViewParams
+  ): Promise<AxiosResponse>
 }
 
 export function createSpineClient(logger: Logger): SpineClient {

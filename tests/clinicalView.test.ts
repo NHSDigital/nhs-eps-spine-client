@@ -24,6 +24,7 @@ const mockParams: ClinicalViewParams = {
 }
 const mockResponse = "<xml></xml>"
 const mockAddress = "https://spine/syncservice-pds/pds"
+const mockHeaders = {}
 
 describe("live clinicalView", () => {
   const logger = new Logger({serviceName: "spineClient"})
@@ -35,7 +36,7 @@ describe("live clinicalView", () => {
   test("successful response when http response is status 200 and spine status does not exist", async () => {
     mock.onPost(mockAddress).reply(200, mockResponse)
     const spineClient = new LiveSpineClient(logger)
-    const spineResponse = await spineClient.clinicalView(mockParams)
+    const spineResponse = await spineClient.clinicalView(mockHeaders, mockParams)
 
     expect(spineResponse.status).toBe(200)
     expect(spineResponse.data).toStrictEqual(mockResponse)
@@ -46,7 +47,7 @@ describe("live clinicalView", () => {
     const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
     const spineClient = new LiveSpineClient(logger)
 
-    await spineClient.clinicalView(mockParams)
+    await spineClient.clinicalView(mockHeaders, mockParams)
 
     expect(mockLoggerInfo).toHaveBeenCalledWith("spine request duration", {"spine_duration": expect.any(Number)})
   })
@@ -56,7 +57,8 @@ describe("live clinicalView", () => {
     const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
     const spineClient = new LiveSpineClient(logger)
 
-    await expect(spineClient.clinicalView(mockParams)).rejects.toThrow("Request failed with status code 401")
+    await expect(spineClient.clinicalView(mockHeaders, mockParams))
+      .rejects.toThrow("Request failed with status code 401")
 
     expect(mockLoggerInfo).toHaveBeenCalledWith("spine request duration", {"spine_duration": expect.any(Number)})
   })
@@ -80,7 +82,7 @@ describe("live clinicalView", () => {
       mock.onPost(mockAddress).reply(httpResponseCode, {statusCode: spineStatusCode})
       const spineClient = new LiveSpineClient(logger)
 
-      await expect(spineClient.clinicalView(mockParams)).rejects.toThrow(errorMessage)
+      await expect(spineClient.clinicalView(mockHeaders, mockParams)).rejects.toThrow(errorMessage)
     }
   )
 
@@ -89,7 +91,7 @@ describe("live clinicalView", () => {
 
     const spineClient = new LiveSpineClient(logger)
 
-    await expect(spineClient.clinicalView(mockParams)).rejects.toThrow("Network Error")
+    await expect(spineClient.clinicalView(mockHeaders, mockParams)).rejects.toThrow("Network Error")
   })
 
   test("should throw error when timeout on http request", async () => {
@@ -97,7 +99,7 @@ describe("live clinicalView", () => {
 
     const spineClient = new LiveSpineClient(logger)
 
-    await expect(spineClient.clinicalView(mockParams)).rejects.toThrow("timeout of 45000ms exceeded")
+    await expect(spineClient.clinicalView(mockHeaders, mockParams)).rejects.toThrow("timeout of 45000ms exceeded")
   })
 
   test("should not throw error when one unsuccessful and one successful http request", async () => {
@@ -109,7 +111,7 @@ describe("live clinicalView", () => {
 
     const spineClient = new LiveSpineClient(logger)
 
-    const spineResponse = await spineClient.clinicalView(mockParams)
+    const spineResponse = await spineClient.clinicalView(mockHeaders, mockParams)
 
     expect(spineResponse.status).toBe(200)
     expect(spineResponse.data).toStrictEqual(mockResponse)
@@ -122,7 +124,7 @@ describe("live clinicalView", () => {
 
     const spineClient = new LiveSpineClient(logger)
 
-    await expect(spineClient.clinicalView(mockParams)).rejects.toThrow("Network Error")
+    await expect(spineClient.clinicalView(mockHeaders, mockParams)).rejects.toThrow("Network Error")
     expect(mockLoggerWarn).toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 1")
     expect(mockLoggerWarn).toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 2")
     expect(mockLoggerWarn).toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 3")

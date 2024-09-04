@@ -165,9 +165,20 @@ export class LiveSpineClient implements SpineClient {
     )
   }
 
-  async clinicalView(params: ClinicalViewParams): Promise<AxiosResponse> {
+  async clinicalView(
+    inboundHeaders: APIGatewayProxyEventHeaders,
+    params: ClinicalViewParams
+  ): Promise<AxiosResponse> {
     try {
       const address = this.getSpineEndpoint(CLINICAL_VIEW_REQUEST_PATH)
+
+      const outboundHeaders = {
+        "nhsd-correlation-id": inboundHeaders["nhsd-correlation-id"],
+        "nhsd-request-id": inboundHeaders["nhsd-request-id"],
+        "x-request-id": inboundHeaders["x-request-id"],
+        "x-correlation-id": inboundHeaders["x-correlation-id"],
+        "SOAPAction": "urn:nhs:names:services:mmquery/QURX_IN000005UK98"
+      }
 
       const partials: ClinicalContentViewPartials = {
         messageGUID: params.requestId,
@@ -183,13 +194,9 @@ export class LiveSpineClient implements SpineClient {
       }
       const requestBody = Mustache.render(CLINICAL_CONTENT_VIEW_TEMPLATE, partials)
 
-      const headers = {
-        "SOAPAction": "urn:nhs:names:services:mmquery/QURX_IN000005UK98"
-      }
-
       this.logger.info(`making request to ${address}`)
       const response = await this.axiosInstance.post(address, requestBody, {
-        headers: headers,
+        headers: outboundHeaders,
         httpsAgent: this.httpsAgent,
         timeout: SPINE_TIMEOUT
       })
