@@ -15,7 +15,7 @@ type spineFailureTestData = {
   scenarioDescription: string
 }
 
-describe("live spine client", () => {
+describe("live getPrescriptions", () => {
   const logger = new Logger({serviceName: "spineClient"})
 
   afterEach(() => {
@@ -137,5 +137,4 @@ describe("live spine client", () => {
     expect(mockLoggerWarn).toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 3")
     expect(mockLoggerWarn).not.toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 4")
   })
-
 })

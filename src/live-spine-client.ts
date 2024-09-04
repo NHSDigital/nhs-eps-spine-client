@@ -10,9 +10,44 @@ import axios, {
 } from "axios"
 import {APIGatewayProxyEventHeaders} from "aws-lambda"
 import axiosRetry from "axios-retry"
+import {handleCallError, handleErrorResponse} from "./utils"
+import path from "path"
+import fs from "fs"
+import {fileURLToPath} from "url"
+import Mustache from "mustache"
 
 // timeout in ms to wait for response from spine to avoid lambda timeout
 const SPINE_TIMEOUT = 45000
+
+// Clinical Content View Globals
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const CLINICAL_CONTENT_VIEW_TEMPLATE =
+  fs.readFileSync(path.join(__dirname, "resources/clinical_content_view_sandbox.xml"), "utf8")
+    .replace(/\n/g, "\r\n")
+const CLINICAL_VIEW_REQUEST_PATH = "syncservice-pds/pds"
+
+export interface ClinicalViewParams {
+    requestId: string,
+    prescriptionId: string,
+    organizationId: string,
+    repeatNumber?: string,
+    sdsRoleProfileId: string,
+    sdsId: string,
+    jobRoleCode: string
+}
+
+interface ClinicalContentViewPartials {
+    messageGUID: string,
+    toASID: string,
+    fromASID: string
+    creationTime: string,
+    agentPersonSDSRoleProfileId: string,
+    agentPersonSDSId: string,
+    agentPersonJobRoleCode: string,
+    organizationId: string,
+    prescriptionId: string,
+    repeatNumber: string
+}
 
 export class LiveSpineClient implements SpineClient {
   private readonly SPINE_URL_SCHEME = "https"
@@ -37,7 +72,9 @@ export class LiveSpineClient implements SpineClient {
     this.axiosInstance = axios.create()
     axiosRetry(this.axiosInstance, {
       retries: 3,
-      onRetry: this.onAxiosRetry
+      onRetry: this.onAxiosRetry,
+      // Force retry on post requests with non-timeout errors
+      retryCondition: (error) => error.code !== "ECONNABORTED"
     })
     this.axiosInstance.interceptors.request.use((config) => {
       config.headers["request-startTime"] = new Date().getTime()
@@ -88,52 +125,10 @@ export class LiveSpineClient implements SpineClient {
       })
 
       // This can be removed when https://nhsd-jira.digital.nhs.uk/browse/AEA-3448 is complete
-      if (
-        response.data["statusCode"] !== undefined &&
-        response.data["statusCode"] !== "1" &&
-        response.data["statusCode"] !== "0"
-      ) {
-        this.logger.error("Unsuccessful status code response from spine", {
-          response: {
-            data: response.data,
-            status: response.status,
-            Headers: response.headers
-          }
-        })
-        throw new Error("Unsuccessful status code response from spine")
-      }
+      handleErrorResponse(this.logger, response)
       return response
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          this.logger.error("error in response from spine", {
-            response: {
-              data: error.response.data,
-              status: error.response.status,
-              Headers: error.response.headers
-            },
-            request: {
-              method: error.request?.path,
-              params: error.request?.params,
-              headers: error.request?.headers,
-              host: error.request?.host
-            }
-          })
-        } else if (error.request) {
-          this.logger.error("error in request to spine", {
-            method: error.request.method,
-            path: error.request.path,
-            params: error.request.params,
-            headers: error.request.headers,
-            host: error.request.host
-          })
-        } else {
-          this.logger.error("general error calling spine", {error})
-        }
-      } else {
-        this.logger.error("general error", {error})
-      }
-      throw error
+      handleCallError(this.logger, error)
     }
   }
 
@@ -168,6 +163,42 @@ export class LiveSpineClient implements SpineClient {
       process.env.SpinePrivateKey !== "ChangeMe" &&
       process.env.SpineCAChain !== "ChangeMe"
     )
+  }
+
+  async clinicalView(params: ClinicalViewParams): Promise<AxiosResponse> {
+    try {
+      const address = this.getSpineEndpoint(CLINICAL_VIEW_REQUEST_PATH)
+
+      const partials: ClinicalContentViewPartials = {
+        messageGUID: params.requestId,
+        toASID: this.spineASID,
+        fromASID: this.spineASID,
+        creationTime: new Date().getTime().toString(),
+        agentPersonSDSRoleProfileId: params.sdsRoleProfileId,
+        agentPersonSDSId: params.sdsId,
+        agentPersonJobRoleCode: params.jobRoleCode,
+        organizationId: params.organizationId,
+        prescriptionId: params.prescriptionId,
+        repeatNumber: params.repeatNumber ?? ""
+      }
+      const requestBody = Mustache.render(CLINICAL_CONTENT_VIEW_TEMPLATE, partials)
+
+      const headers = {
+        "SOAPAction": "urn:nhs:names:services:mmquery/QURX_IN000005UK98"
+      }
+
+      this.logger.info(`making request to ${address}`)
+      const response = await this.axiosInstance.post(address, requestBody, {
+        headers: headers,
+        httpsAgent: this.httpsAgent,
+        timeout: SPINE_TIMEOUT
+      })
+
+      handleErrorResponse(this.logger, response)
+      return response
+    } catch(error) {
+      handleCallError(this.logger, error)
+    }
   }
 
   onAxiosRetry = (retryCount, error) => {
