@@ -1,6 +1,7 @@
 import {AxiosResponse} from "axios"
 import {SpineClient} from "./spine-client"
 import {StatusCheckResponse} from "./status"
+import PRESCRIPTION_SEARCH_RESPONSE from "./resources/prescription_search_response"
 
 export class SandboxSpineClient implements SpineClient {
   async getStatus(): Promise<StatusCheckResponse> {
@@ -19,5 +20,14 @@ export class SandboxSpineClient implements SpineClient {
   isCertificateConfigured(): boolean {
     // In the sandbox environment, assume the certificate is always configured
     return true
+  }
+
+  async prescriptionSearch(): Promise<AxiosResponse> {
+    const response: AxiosResponse = {
+      data: PRESCRIPTION_SEARCH_RESPONSE,
+      status: 200,
+      statusText: "OK"
+    } as unknown as AxiosResponse
+    return Promise.resolve(response)
   }
 }

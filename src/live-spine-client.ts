@@ -10,9 +10,61 @@ import axios, {
 } from "axios"
 import {APIGatewayProxyEventHeaders} from "aws-lambda"
 import axiosRetry from "axios-retry"
+import {handleCallError, handleErrorResponse} from "./utils"
+import Mustache from "mustache"
+import PRESCRIPTION_SEARCH_TEMPLATE from "./resources/prescription_search"
 
 // timeout in ms to wait for response from spine to avoid lambda timeout
 const SPINE_TIMEOUT = 45000
+
+// Prescription Search Globals
+const PRESCRIPTION_SEARCH_REQUEST_PATH = "syncservice-pds/pds"
+
+export interface PrescriptionSearchParams {
+  requestId: string,
+  prescriptionId: string,
+  organizationId: string,
+  sdsRoleProfileId: string,
+  sdsId: string,
+  jobRoleCode: string,
+  nhsNumber?: string
+  dispenserOrg?: string
+  prescriberOrg?: string
+  releaseVersion?: string
+  prescriptionStatus?: string
+  prescriptionStatus1?: string
+  prescriptionStatus2?: string
+  prescriptionStatus3?: string
+  creationDateRange?: {
+    lowDate?: string
+    highDate?: string
+  }
+  mySiteOrganisation?: string
+}
+
+export interface PrescriptionSearchPartials {
+  messageGUID: string,
+  toASID: string,
+  fromASID: string
+  creationTime: string,
+  agentPersonSDSRoleProfileId: string,
+  agentPersonSDSId: string,
+  agentPersonJobRoleCode: string,
+  prescriptionId?: string
+  nhsNumber?: string
+  dispenserOrg?: string
+  prescriberOrg?: string
+  releaseVersion?: string
+  prescriptionStatus?: string
+  prescriptionStatus1?: string
+  prescriptionStatus2?: string
+  prescriptionStatus3?: string
+  creationDateRange?: {
+    lowDate?: string
+    highDate?: string
+  }
+  mySiteOrganisation?: string
+}
 
 export class LiveSpineClient implements SpineClient {
   private readonly SPINE_URL_SCHEME = "https"
@@ -37,7 +89,9 @@ export class LiveSpineClient implements SpineClient {
     this.axiosInstance = axios.create()
     axiosRetry(this.axiosInstance, {
       retries: 3,
-      onRetry: this.onAxiosRetry
+      onRetry: this.onAxiosRetry,
+      // Force retry on post requests with non-timeout errors
+      retryCondition: (error) => error.code !== "ECONNABORTED"
     })
     this.axiosInstance.interceptors.request.use((config) => {
       config.headers["request-startTime"] = new Date().getTime()
@@ -87,53 +141,10 @@ export class LiveSpineClient implements SpineClient {
         timeout: SPINE_TIMEOUT
       })
 
-      // This can be removed when https://nhsd-jira.digital.nhs.uk/browse/AEA-3448 is complete
-      if (
-        response.data["statusCode"] !== undefined &&
-        response.data["statusCode"] !== "1" &&
-        response.data["statusCode"] !== "0"
-      ) {
-        this.logger.error("Unsuccessful status code response from spine", {
-          response: {
-            data: response.data,
-            status: response.status,
-            Headers: response.headers
-          }
-        })
-        throw new Error("Unsuccessful status code response from spine")
-      }
+      handleErrorResponse(this.logger, response)
       return response
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          this.logger.error("error in response from spine", {
-            response: {
-              data: error.response.data,
-              status: error.response.status,
-              Headers: error.response.headers
-            },
-            request: {
-              method: error.request?.path,
-              params: error.request?.params,
-              headers: error.request?.headers,
-              host: error.request?.host
-            }
-          })
-        } else if (error.request) {
-          this.logger.error("error in request to spine", {
-            method: error.request.method,
-            path: error.request.path,
-            params: error.request.params,
-            headers: error.request.headers,
-            host: error.request.host
-          })
-        } else {
-          this.logger.error("general error calling spine", {error})
-        }
-      } else {
-        this.logger.error("general error", {error})
-      }
-      throw error
+      handleCallError(this.logger, error)
     }
   }
 
@@ -170,137 +181,62 @@ export class LiveSpineClient implements SpineClient {
     )
   }
 
-  onAxiosRetry = (retryCount, error) => {
-    this.logger.warn(error)
-    this.logger.warn(`Call to spine failed - retrying. Retry count ${retryCount}`)
-  }
-
   async prescriptionSearch(
-    requestId: string,
-    prescriptionId: string,
-    prescriberOds: string
+    inboundHeaders: APIGatewayProxyEventHeaders,
+    params: PrescriptionSearchParams
   ): Promise<AxiosResponse> {
-    const soapAction = "urn:nhs:names:services:mmquery/PRESCRIPTIONSEARCH_SM01"
-    const endpoint = this.getSpineEndpoint("syncservice-mm/mm")
-
-    const soapEnvelope = `
-    <?xml version="1.0" encoding="utf-8"?>
-    <SOAP-ENV:Envelope 
-      xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" 
-      xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" 
-      xmlns:hl7="urn:hl7-org:v3">
-        <SOAP-ENV:Header>
-            <wsa:MessageID>uuid:${requestId}</wsa:MessageID>
-            <wsa:Action>${soapAction}</wsa:Action>
-            <wsa:To>${endpoint}</wsa:To>
-            <wsa:From><wsa:Address/></wsa:From>
-            <wsa:ReplyTo><wsa:Address/></wsa:ReplyTo>
-            <hl7:communicationFunctionRcv>
-                <hl7:device>
-                    <hl7:id root="1.2.826.0.1285.0.2.0.107" extension="200000002066"/>
-                </hl7:device>
-            </hl7:communicationFunctionRcv>
-            <hl7:communicationFunctionSnd>
-                <hl7:device>
-                    <hl7:id root="1.2.826.0.1285.0.2.0.107" extension="200000002066"/>
-                </hl7:device>
-            </hl7:communicationFunctionSnd>
-        </SOAP-ENV:Header>
-        <SOAP-ENV:Body>
-            <PRESCRIPTIONSEARCH_SM01 xmlns="urn:hl7-org:v3">
-                <id root="${requestId}"/>
-                <creationTime value="${this.getCurrentTimestamp()}"/>
-                <versionCode code="V3NPfIT4.2.00"/>
-                <interactionId root="2.16.840.1.113883.2.1.3.2.4.12" extension="PRESCRIPTIONSEARCH_SM01"/>
-                <processingCode code="P"/>
-                <processingModeCode code="T"/>
-                <acceptAckCode code="NE"/>
-                <communicationFunctionRcv>
-                    <device classCode="DEV" determinerCode="INSTANCE">
-                        <id root="1.2.826.0.1285.0.2.0.107" extension="200000002066"/>
-                    </device>
-                </communicationFunctionRcv>
-                <communicationFunctionSnd>
-                    <device classCode="DEV" determinerCode="INSTANCE">
-                        <id root="1.2.826.0.1285.0.2.0.107" extension="200000002066"/>
-                    </device>
-                </communicationFunctionSnd>
-                <ControlActEvent classCode="CACT" moodCode="EVN">
-                    <author typeCode="AUT">
-                        <AgentPersonSDS classCode="AGNT">
-                            <id root="1.2.826.0.1285.0.2.0.67" extension="123456123456"/>
-                            <agentPersonSDS classCode="PSN" determinerCode="INSTANCE">
-                                <id root="1.2.826.0.1285.0.2.0.65" extension="123456123456"/>
-                            </agentPersonSDS>
-                            <part typeCode="PART">
-                                <partSDSRole classCode="ROL">
-                                    <id root="1.2.826.0.1285.0.2.1.104" extension="123456123456"/>
-                                </partSDSRole>
-                            </part>
-                        </AgentPersonSDS>
-                    </author>
-                    <author1 typeCode="AUT">
-                        <AgentSystemSDS classCode="AGNT">
-                            <agentSystemSDS classCode="DEV" determinerCode="INSTANCE">
-                                <id root="1.2.826.0.1285.0.2.0.107" extension="200000002066"/>
-                            </agentSystemSDS>
-                        </AgentSystemSDS>
-                    </author1>
-                    <query>
-                        <prescriptionId value="${prescriptionId}"/>
-                        <prescriberOrganisation value="${prescriberOds}"/>
-                    </query>
-                </ControlActEvent>
-            </PRESCRIPTIONSEARCH_SM01>
-        </SOAP-ENV:Body>
-    </SOAP-ENV:Envelope>`
-
     try {
-      const response = await this.axiosInstance.post(endpoint, soapEnvelope, {
-        headers: {
-          "Content-Type": "text/xml",
-          "SOAPAction": soapAction
-        },
+      const address = this.getSpineEndpoint(PRESCRIPTION_SEARCH_REQUEST_PATH)
+
+      // Headers for the outbound SOAP request
+      const outboundHeaders = {
+        "nhsd-correlation-id": inboundHeaders["nhsd-correlation-id"],
+        "nhsd-request-id": inboundHeaders["nhsd-request-id"],
+        "x-request-id": inboundHeaders["x-request-id"],
+        "x-correlation-id": inboundHeaders["x-correlation-id"],
+        "SOAPAction": "urn:nhs:names:services:mmquery/PRESCRIPTIONSEARCH_SM01"
+      }
+
+      // Partial data required by the Mustache template
+      const partials: PrescriptionSearchPartials = {
+        messageGUID: params.requestId,
+        toASID: this.spineASID ?? "",
+        fromASID: this.spineASID ?? "",
+        creationTime: new Date().toISOString(),
+        agentPersonSDSRoleProfileId: params.sdsRoleProfileId,
+        agentPersonSDSId: params.sdsId,
+        agentPersonJobRoleCode: params.jobRoleCode,
+        prescriptionId: params.prescriptionId,
+        nhsNumber: params.nhsNumber,
+        dispenserOrg: params.dispenserOrg,
+        prescriberOrg: params.prescriberOrg,
+        releaseVersion: params.releaseVersion,
+        prescriptionStatus: params.prescriptionStatus,
+        prescriptionStatus1: params.prescriptionStatus1,
+        prescriptionStatus2: params.prescriptionStatus2,
+        prescriptionStatus3: params.prescriptionStatus3,
+        creationDateRange: params.creationDateRange,
+        mySiteOrganisation: params.mySiteOrganisation
+      }
+
+      const requestBody = Mustache.render(PRESCRIPTION_SEARCH_TEMPLATE, partials)
+
+      this.logger.info(`Making request to ${address}`)
+      const response = await this.axiosInstance.post(address, requestBody, {
+        headers: outboundHeaders,
         httpsAgent: this.httpsAgent,
         timeout: SPINE_TIMEOUT
       })
 
+      handleErrorResponse(this.logger, response)
       return response
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          this.logger.error("error in response from spine", {
-            response: {
-              data: error.response.data,
-              status: error.response.status,
-              Headers: error.response.headers
-            },
-            request: {
-              method: error.request?.path,
-              params: error.request?.params,
-              headers: error.request?.headers,
-              host: error.request?.host
-            }
-          })
-        } else if (error.request) {
-          this.logger.error("error in request to spine", {
-            method: error.request.method,
-            path: error.request.path,
-            params: error.request.params,
-            headers: error.request.headers,
-            host: error.request.host
-          })
-        } else {
-          this.logger.error("general error calling spine", {error})
-        }
-      } else {
-        this.logger.error("general error", {error})
-      }
-      throw error
+      handleCallError(this.logger, error)
     }
   }
 
-  private getCurrentTimestamp(): string {
-    return Math.floor(Date.now() / 1000).toString()
+  onAxiosRetry = (retryCount, error) => {
+    this.logger.warn(error)
+    this.logger.warn(`Call to spine failed - retrying. Retry count ${retryCount}`)
   }
 }
