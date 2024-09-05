@@ -15,14 +15,8 @@ type spineFailureTestData = {
   scenarioDescription: string
 }
 
-describe("live spine client", () => {
+describe("live getPrescriptions", () => {
   const logger = new Logger({serviceName: "spineClient"})
-  const originalEnv = process.env
-
-  beforeEach(() => {
-    jest.resetModules()
-    process.env = {...originalEnv}
-  })
 
   afterEach(() => {
     mock.reset()
@@ -142,89 +136,5 @@ describe("live spine client", () => {
     expect(mockLoggerWarn).toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 2")
     expect(mockLoggerWarn).toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 3")
     expect(mockLoggerWarn).not.toHaveBeenCalledWith("Call to spine failed - retrying. Retry count 4")
-  })
-
-  test("successful prescription search", async () => {
-    const soapResponse = `
-    <?xml version="1.0" encoding="utf-8"?>
-    <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-      <SOAP-ENV:Body>
-        <PRESCRIPTIONSEARCH_SM01_RESPONSE xmlns="urn:hl7-org:v3">
-          <ControlActEvent>
-            <query>
-              <prescriptionId value="12345"/>
-              <prescriberOrganisation value="ABCD"/>
-            </query>
-          </ControlActEvent>
-        </PRESCRIPTIONSEARCH_SM01_RESPONSE>
-      </SOAP-ENV:Body>
-    </SOAP-ENV:Envelope>
-  `
-    mock.onPost("https://spine/syncservice-mm/mm").reply(200, soapResponse)
-
-    const spineClient = new LiveSpineClient(logger)
-    const requestId = "request-id"
-    const prescriptionId = "12345"
-    const prescriberOds = "ABCD"
-    const response = await spineClient.prescriptionSearch(requestId, prescriptionId, prescriberOds)
-
-    expect(response.status).toBe(200)
-    expect(response.data).toContain("<prescriptionId value=\"12345\"/>")
-    expect(response.data).toContain("<prescriberOrganisation value=\"ABCD\"/>")
-  })
-
-  test("throw error on SOAP request failure", async () => {
-    mock.onPost("https://spine/syncservice-mm/mm").networkError()
-
-    const spineClient = new LiveSpineClient(logger)
-    const requestId = "request-id"
-    const prescriptionId = "12345"
-    const prescriberOds = "ABCD"
-
-    await expect(
-      spineClient.prescriptionSearch(requestId, prescriptionId, prescriberOds)
-    ).rejects.toThrow("Network Error")
-  })
-
-  test("throw error on SOAP request timeout", async () => {
-    mock.onPost("https://spine/syncservice-mm/mm").timeout()
-
-    const spineClient = new LiveSpineClient(logger)
-    const requestId = "request-id"
-    const prescriptionId = "12345"
-    const prescriberOds = "ABCD"
-
-    await expect(
-      spineClient.prescriptionSearch(requestId, prescriptionId, prescriberOds)
-    ).rejects.toThrow("timeout of 45000ms exceeded")
-  })
-
-  test("return health check status as 'pass' if certificate is not configured", async () => {
-    process.env.SpinePublicCertificate = "ChangeMe"
-    process.env.SpinePrivateKey = "ChangeMe"
-    process.env.SpineCAChain = "ChangeMe"
-
-    const spineClient = new LiveSpineClient(logger)
-    const status = await spineClient.getStatus()
-
-    expect(status).toEqual({status: "pass", message: "Spine certificate is not configured"})
-  })
-
-  test("return health check status as 'pass' on successful status check", async () => {
-    mock.onGet("https://spine/healthcheck").reply(200, {status: "pass"})
-
-    const spineClient = new LiveSpineClient(logger)
-    const status = await spineClient.getStatus()
-
-    expect(status.status).toBe("pass")
-  })
-
-  test("return health check status as 'error' on failed status check", async () => {
-    mock.onGet("https://spine/healthcheck").reply(500)
-
-    const spineClient = new LiveSpineClient(logger)
-    const status = await spineClient.getStatus()
-
-    expect(status.status).toBe("error")
   })
 })
