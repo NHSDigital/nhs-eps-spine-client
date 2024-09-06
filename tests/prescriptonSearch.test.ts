@@ -63,7 +63,7 @@ describe("live prescriptionSearch", () => {
     expect(mockLoggerInfo).toHaveBeenCalledWith("spine request duration", {"spine_duration": expect.any(Number)})
   })
 
-  const testCases: spineFailureTestData[] = [
+  const testCases: Array<spineFailureTestData> = [
     {
       httpResponseCode: 200,
       spineStatusCode: "99",
@@ -81,14 +81,18 @@ describe("live prescriptionSearch", () => {
   const runTestCase = async ({
     httpResponseCode,
     spineStatusCode,
-    errorMessage,
-    scenarioDescription
+    errorMessage
   }: spineFailureTestData) => {
     mock.onPost(mockAddress).reply(httpResponseCode, {statusCode: spineStatusCode})
     const spineClient = new LiveSpineClient(logger)
 
     await expect(spineClient.prescriptionSearch(mockHeaders, mockParams)).rejects.toThrow(errorMessage)
   }
+
+  test.each(testCases)(
+    "should throw an error when $scenarioDescription",
+    runTestCase
+  )
 
   test.each(testCases)(
     "should throw an error when $scenarioDescription",
