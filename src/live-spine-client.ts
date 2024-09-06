@@ -258,7 +258,6 @@ export class LiveSpineClient implements SpineClient {
     try {
       const address = this.getSpineEndpoint(PRESCRIPTION_SEARCH_REQUEST_PATH)
 
-      // Headers for the outbound SOAP request
       const outboundHeaders = {
         "nhsd-correlation-id": inboundHeaders["nhsd-correlation-id"],
         "nhsd-request-id": inboundHeaders["nhsd-request-id"],
@@ -267,7 +266,6 @@ export class LiveSpineClient implements SpineClient {
         "SOAPAction": "urn:nhs:names:services:mmquery/PRESCRIPTIONSEARCH_SM01"
       }
 
-      // Partial data required by the Mustache template
       const partials: PrescriptionSearchPartials = {
         messageGUID: params.requestId,
         toASID: this.spineASID ?? "",
