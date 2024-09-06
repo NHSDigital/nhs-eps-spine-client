@@ -1,6 +1,7 @@
 import {AxiosResponse} from "axios"
 import {SpineClient} from "./spine-client"
 import {StatusCheckResponse} from "./status"
+import CLINICAL_CONTENT_VIEW_SANDBOX_RESPONSE from "./resources/clinical_content_view_sandbox"
 
 export class SandboxSpineClient implements SpineClient {
   async getStatus(): Promise<StatusCheckResponse> {
@@ -19,5 +20,14 @@ export class SandboxSpineClient implements SpineClient {
   isCertificateConfigured(): boolean {
     // In the sandbox environment, assume the certificate is always configured
     return true
+  }
+
+  async clinicalView(): Promise<AxiosResponse> {
+    const response: AxiosResponse = {
+      data: CLINICAL_CONTENT_VIEW_SANDBOX_RESPONSE,
+      status: 200,
+      statusText: "OK"
+    } as unknown as AxiosResponse
+    return Promise.resolve(response)
   }
 }
