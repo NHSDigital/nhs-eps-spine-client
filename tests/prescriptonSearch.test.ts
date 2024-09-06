@@ -86,10 +86,14 @@ describe("live prescriptionSearch", () => {
     }
   )
 
-  test("should handle network errors and timeouts", async () => {
+  test("should throw error when unsuccessful http request", async () => {
     const spineClient = new LiveSpineClient(logger)
     mock.onPost(mockAddress).networkError()
     await expect(spineClient.prescriptionSearch(mockHeaders, mockParams)).rejects.toThrow("Network Error")
+  })
+
+  test("should throw error when timeout on http request", async () => {
+    const spineClient = new LiveSpineClient(logger)
     mock.onPost(mockAddress).timeout()
     await expect(spineClient.prescriptionSearch(mockHeaders, mockParams)).rejects.toThrow("timeout of 45000ms exceeded")
   })
