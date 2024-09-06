@@ -74,10 +74,10 @@ describe("live prescriptionSearch", () => {
       httpResponseCode: 500,
       spineStatusCode: "0",
       errorMessage: "Request failed with status code 500",
-      scenarioDescription: "spine returns an unsuccessful http status code"
+      scenarioDescription: "spine returns an unsuccessful HTTP status code"
     }
   ])(
-    "throw error when $scenarioDescription",
+    "should throw an error when $scenarioDescription",
     async ({httpResponseCode, spineStatusCode, errorMessage}) => {
       mock.onPost(mockAddress).reply(httpResponseCode, {statusCode: spineStatusCode})
       const spineClient = new LiveSpineClient(logger)
@@ -86,19 +86,11 @@ describe("live prescriptionSearch", () => {
     }
   )
 
-  test("should throw error when unsuccessful http request", async () => {
+  test("should handle network errors and timeouts", async () => {
+    const spineClient = new LiveSpineClient(logger)
     mock.onPost(mockAddress).networkError()
-
-    const spineClient = new LiveSpineClient(logger)
-
     await expect(spineClient.prescriptionSearch(mockHeaders, mockParams)).rejects.toThrow("Network Error")
-  })
-
-  test("should throw error when timeout on http request", async () => {
     mock.onPost(mockAddress).timeout()
-
-    const spineClient = new LiveSpineClient(logger)
-
     await expect(spineClient.prescriptionSearch(mockHeaders, mockParams)).rejects.toThrow("timeout of 45000ms exceeded")
   })
 
