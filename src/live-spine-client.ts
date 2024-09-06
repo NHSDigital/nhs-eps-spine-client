@@ -21,6 +21,9 @@ const SPINE_TIMEOUT = 45000
 // Clinical Content View Globals
 const CLINICAL_VIEW_REQUEST_PATH = "syncservice-pds/pds"
 
+// Prescription Search Globals
+const PRESCRIPTION_SEARCH_REQUEST_PATH = "syncservice-pds/pds"
+
 export interface ClinicalViewParams {
   requestId: string,
   prescriptionId: string,
@@ -43,9 +46,6 @@ interface ClinicalContentViewPartials {
   prescriptionId: string,
   repeatNumber: string
 }
-
-// Prescription Search Globals
-const PRESCRIPTION_SEARCH_REQUEST_PATH = "syncservice-pds/pds"
 
 export interface PrescriptionSearchParams {
   requestId: string,
