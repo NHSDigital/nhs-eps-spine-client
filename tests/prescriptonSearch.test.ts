@@ -63,7 +63,7 @@ describe("live prescriptionSearch", () => {
     expect(mockLoggerInfo).toHaveBeenCalledWith("spine request duration", {"spine_duration": expect.any(Number)})
   })
 
-  test.each<spineFailureTestData>([
+  const testCases: spineFailureTestData[] = [
     {
       httpResponseCode: 200,
       spineStatusCode: "99",
@@ -74,23 +74,34 @@ describe("live prescriptionSearch", () => {
       httpResponseCode: 500,
       spineStatusCode: "0",
       errorMessage: "Request failed with status code 500",
-      scenarioDescription: "spine returns an unsuccessful HTTP status code"
+      scenarioDescription: "spine returns an unsuccessful http status code"
     }
-  ])(
-    "should throw an error when $scenarioDescription",
-    async ({httpResponseCode, spineStatusCode, errorMessage}) => {
-      mock.onPost(mockAddress).reply(httpResponseCode, {statusCode: spineStatusCode})
-      const spineClient = new LiveSpineClient(logger)
+  ]
 
-      await expect(spineClient.prescriptionSearch(mockHeaders, mockParams)).rejects.toThrow(errorMessage)
-    }
+  const runTest = async ({httpResponseCode, spineStatusCode, errorMessage, scenarioDescription}: spineFailureTestData) => {
+    mock.onPost(mockAddress).reply(httpResponseCode, {statusCode: spineStatusCode})
+    const spineClient = new LiveSpineClient(logger)
+    await expect(spineClient.prescriptionSearch(mockHeaders, mockParams)).rejects.toThrow(errorMessage)
+  }
+
+  test.each(testCases)(
+    "throw error when $scenarioDescription",
+    runTest
   )
 
-  test("should handle network errors and timeouts", async () => {
-    const spineClient = new LiveSpineClient(logger)
+  test("should throw error when unsuccessful http request", async () => {
     mock.onPost(mockAddress).networkError()
+
+    const spineClient = new LiveSpineClient(logger)
+
     await expect(spineClient.prescriptionSearch(mockHeaders, mockParams)).rejects.toThrow("Network Error")
+  })
+
+  test("should throw error when timeout on http request", async () => {
     mock.onPost(mockAddress).timeout()
+
+    const spineClient = new LiveSpineClient(logger)
+
     await expect(spineClient.prescriptionSearch(mockHeaders, mockParams)).rejects.toThrow("timeout of 45000ms exceeded")
   })
 
