@@ -12,10 +12,37 @@ import {APIGatewayProxyEventHeaders} from "aws-lambda"
 import axiosRetry from "axios-retry"
 import {handleCallError, handleErrorResponse} from "./utils"
 import Mustache from "mustache"
+import CLINICAL_CONTENT_VIEW_TEMPLATE from "./resources/clinical_content_view"
 import PRESCRIPTION_SEARCH_TEMPLATE from "./resources/prescription_search"
 
 // timeout in ms to wait for response from spine to avoid lambda timeout
 const SPINE_TIMEOUT = 45000
+
+// Clinical Content View Globals
+const CLINICAL_VIEW_REQUEST_PATH = "syncservice-pds/pds"
+
+export interface ClinicalViewParams {
+  requestId: string,
+  prescriptionId: string,
+  organizationId: string,
+  repeatNumber?: string,
+  sdsRoleProfileId: string,
+  sdsId: string,
+  jobRoleCode: string
+}
+
+interface ClinicalContentViewPartials {
+  messageGUID: string,
+  toASID: string,
+  fromASID: string
+  creationTime: string,
+  agentPersonSDSRoleProfileId: string,
+  agentPersonSDSId: string,
+  agentPersonJobRoleCode: string,
+  organizationId: string,
+  prescriptionId: string,
+  repeatNumber: string
+}
 
 // Prescription Search Globals
 const PRESCRIPTION_SEARCH_REQUEST_PATH = "syncservice-pds/pds"
@@ -143,7 +170,7 @@ export class LiveSpineClient implements SpineClient {
 
       handleErrorResponse(this.logger, response)
       return response
-    } catch (error) {
+    } catch(error) {
       handleCallError(this.logger, error)
     }
   }
@@ -153,14 +180,14 @@ export class LiveSpineClient implements SpineClient {
   }
 
   async getStatus(): Promise<SpineStatus> {
-    if (!this.isCertificateConfigured()) {
+    if(!this.isCertificateConfigured()) {
       return {status: "pass", message: "Spine certificate is not configured"}
     }
 
     const axiosConfig: AxiosRequestConfig = {timeout: 20000}
     let endpoint: string
 
-    if (process.env.healthCheckUrl === undefined) {
+    if(process.env.healthCheckUrl === undefined) {
       axiosConfig.httpsAgent = this.httpsAgent
       endpoint = this.getSpineEndpoint("healthcheck")
     } else {
@@ -179,6 +206,49 @@ export class LiveSpineClient implements SpineClient {
       process.env.SpinePrivateKey !== "ChangeMe" &&
       process.env.SpineCAChain !== "ChangeMe"
     )
+  }
+
+  async clinicalView(
+    inboundHeaders: APIGatewayProxyEventHeaders,
+    params: ClinicalViewParams
+  ): Promise<AxiosResponse> {
+    try {
+      const address = this.getSpineEndpoint(CLINICAL_VIEW_REQUEST_PATH)
+
+      const outboundHeaders = {
+        "nhsd-correlation-id": inboundHeaders["nhsd-correlation-id"],
+        "nhsd-request-id": inboundHeaders["nhsd-request-id"],
+        "x-request-id": inboundHeaders["x-request-id"],
+        "x-correlation-id": inboundHeaders["x-correlation-id"],
+        "SOAPAction": "urn:nhs:names:services:mmquery/QURX_IN000005UK98"
+      }
+
+      const partials: ClinicalContentViewPartials = {
+        messageGUID: params.requestId,
+        toASID: this.spineASID,
+        fromASID: this.spineASID,
+        creationTime: new Date().getTime().toString(),
+        agentPersonSDSRoleProfileId: params.sdsRoleProfileId,
+        agentPersonSDSId: params.sdsId,
+        agentPersonJobRoleCode: params.jobRoleCode,
+        organizationId: params.organizationId,
+        prescriptionId: params.prescriptionId,
+        repeatNumber: params.repeatNumber ?? ""
+      }
+      const requestBody = Mustache.render(CLINICAL_CONTENT_VIEW_TEMPLATE, partials)
+
+      this.logger.info(`making request to ${address}`)
+      const response = await this.axiosInstance.post(address, requestBody, {
+        headers: outboundHeaders,
+        httpsAgent: this.httpsAgent,
+        timeout: SPINE_TIMEOUT
+      })
+
+      handleErrorResponse(this.logger, response)
+      return response
+    } catch(error) {
+      handleCallError(this.logger, error)
+    }
   }
 
   async prescriptionSearch(
@@ -230,7 +300,7 @@ export class LiveSpineClient implements SpineClient {
 
       handleErrorResponse(this.logger, response)
       return response
-    } catch (error) {
+    } catch(error) {
       handleCallError(this.logger, error)
     }
   }
