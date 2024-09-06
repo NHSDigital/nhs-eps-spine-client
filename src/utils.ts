@@ -2,9 +2,9 @@ import {Logger} from "@aws-lambda-powertools/logger"
 import axios, {AxiosResponse} from "axios"
 
 export function handleErrorResponse(logger: Logger, response: AxiosResponse) {
-  if(response.data["statusCode"] !== undefined &&
-    response.data["statusCode"] !== "1" &&
-    response.data["statusCode"] !== "0") {
+  if (response.data["statusCode"] !== undefined &&
+      response.data["statusCode"] !== "1" &&
+      response.data["statusCode"] !== "0") {
     logger.error("Unsuccessful status code response from spine", {
       response: {
         data: response.data,
@@ -17,8 +17,8 @@ export function handleErrorResponse(logger: Logger, response: AxiosResponse) {
 }
 
 export function handleCallError(logger: Logger, error: unknown) {
-  if(axios.isAxiosError(error)) {
-    if(error.response) {
+  if (axios.isAxiosError(error)) {
+    if (error.response) {
       logger.error("error in response from spine", {
         response: {
           data: error.response.data,
@@ -32,7 +32,7 @@ export function handleCallError(logger: Logger, error: unknown) {
           host: error.request?.host
         }
       })
-    } else if(error.request) {
+    } else if (error.request) {
       logger.error("error in request to spine", {
         method: error.request.method,
         path: error.request.path,
