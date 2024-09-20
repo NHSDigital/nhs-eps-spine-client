@@ -17,6 +17,10 @@ export function handleErrorResponse(logger: Logger, response: AxiosResponse) {
 }
 
 export function handleCallError(logger: Logger, error: unknown) {
+  if (error["config"]){
+    delete error["config"]
+  }
+
   if (axios.isAxiosError(error)) {
     if (error.response) {
       logger.error("error in response from spine", {
