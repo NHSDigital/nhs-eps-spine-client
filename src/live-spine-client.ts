@@ -69,7 +69,7 @@ export interface PrescriptionSearchParams {
   mySiteOrganisation?: string
 }
 
-export interface PrescriptionSearchPartials {
+interface PrescriptionSearchPartials {
   messageGUID: string,
   toASID: string,
   fromASID: string
@@ -268,9 +268,9 @@ export class LiveSpineClient implements SpineClient {
 
       const partials: PrescriptionSearchPartials = {
         messageGUID: params.requestId,
-        toASID: this.spineASID ?? "",
-        fromASID: this.spineASID ?? "",
-        creationTime: new Date().toISOString(),
+        toASID: this.spineASID,
+        fromASID: this.spineASID,
+        creationTime: new Date().getTime().toString(),
         agentPersonSDSRoleProfileId: params.sdsRoleProfileId,
         agentPersonSDSId: params.sdsId,
         agentPersonJobRoleCode: params.jobRoleCode,
