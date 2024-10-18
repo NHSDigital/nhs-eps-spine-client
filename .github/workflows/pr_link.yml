@@ -1,34 +1,46 @@
-name: PR Title Check
-
+name: PR Link ticket
 on:
-  workflow_call:
-
+  pull_request:
+    types: [opened]
 jobs:
-  pr_title_format_check:
+  link-ticket:
     runs-on: ubuntu-latest
+    env:
+      REF: ${{ github.event.pull_request.head.ref }}
     steps:
-      - name: Check PR Title is Prefixed with Change Type
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: |
-          if [[ "$PR_TITLE" =~ ^(Fix|Update|New|Breaking|Docs|Build|Upgrade|Chore):.*$ ]]; then
-            echo "PR title is prefixed with change type."
-          else
-            echo "PR title is not prefixed with change type."
-            echo "Please prefix your PR title with a change type (Fix, Update, New, Breaking, Docs, Build, Upgrade, Chore)."
-            echo "See the contributing guide for more details:"
-            echo "https://github.com/NHSDigital/nhs-eps-spine-client/blob/main/CONTRIBUTING.md"
-            exit 1
-          fi
+      - name: Check ticket name conforms to requirements
+        run: echo "$REF" | grep -i -E -q "(aea-[0-9]+)|(apm-[0-9]+)|(apmspii-[0-9]+)|(adz-[0-9]+)|(amb-[0-9]+)|(dependabot\/)"
+        continue-on-error: true
 
-      - name: Check PR Title contains Ticket/Dependabot Reference
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
+      - name: Grab ticket name
+        if: contains(github.event.pull_request.head.ref, 'aea-') || contains(github.event.pull_request.head.ref, 'AEA-') || contains(github.event.pull_request.head.ref, 'apm-') || contains(github.event.pull_request.head.ref, 'APM-') || contains(github.event.pull_request.head.ref, 'apmspii-') || contains(github.event.pull_request.head.ref, 'APMSPII-') || contains(github.event.pull_request.head.ref, 'adz-') || contains(github.event.pull_request.head.ref, 'ADZ-') || contains(github.event.pull_request.head.ref, 'amb-') || contains(github.event.pull_request.head.ref, 'AMB-')
+        continue-on-error: true
         run: |
-          if [[ "$PR_TITLE" =~ ^.*:.*\[([A-Z]+-[0-9]+|dependabot)\].*-.*$ ]]; then
-            echo "PR title contains ticket or dependabot reference."
-          else
-            echo "PR title does not contain ticket or dependabot reference."
-            echo "Please ensure PR title contains a ticket (eg. 'Fix: [AEA-####] - ...', or 'Chore: [dependabot] - ...')."
-            exit 1
-          fi
+          # Match ticket name patterns
+          REGEX='
+            (aea-[0-9]+)|
+            (apm-[0-9]+)|
+            (apmspii-[0-9]+)|
+            (adz-[0-9]+)|
+            (amb-[0-9]+)
+          '
+
+          # Remove whitespace and newlines from the regex
+          REGEX=$(echo "$REGEX" | tr -d '[:space:]')
+
+          # Extract the ticket name and convert to uppercase
+          TICKET_NAME=$(echo "$REF" | grep -i -E -o "$REGEX" | tr '[:lower:]' '[:upper:]')
+
+          # Set the environment variable
+          echo "TICKET_NAME=$TICKET_NAME" >> "$GITHUB_ENV"
+
+      - name: Comment on PR with link to JIRA ticket
+        if: contains(github.event.pull_request.head.ref, 'aea-') || contains(github.event.pull_request.head.ref, 'AEA-') || contains(github.event.pull_request.head.ref, 'apm-') || contains(github.event.pull_request.head.ref, 'APM-') || contains(github.event.pull_request.head.ref, 'apmspii-') || contains(github.event.pull_request.head.ref, 'APMSPII-') || contains(github.event.pull_request.head.ref, 'adz-') || contains(github.event.pull_request.head.ref, 'ADZ-') || contains(github.event.pull_request.head.ref, 'amb-') || contains(github.event.pull_request.head.ref, 'AMB-')
+        continue-on-error: true
+        uses: unsplash/comment-on-pr@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          msg: |
+            This branch is work on a ticket in an NHS Digital JIRA Project. Here's a handy link to the ticket:
+            # [${{ env.TICKET_NAME }}](https://nhsd-jira.digital.nhs.uk/browse/${{ env.TICKET_NAME }})
