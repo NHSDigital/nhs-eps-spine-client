@@ -6,9 +6,7 @@ on:
 
 jobs:
   quality_checks:
-    uses: ./.github/workflows/quality_checks.yml
-    with:
-      BRANCH_NAME: main
+    uses: NHSDigital/eps-workflow-quality-checks/.github/workflows/quality-checks.yml@v3.0.0
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -27,7 +25,7 @@ jobs:
         uses: asdf-vm/actions/setup@05e0d2ed97b598bfce82fd30daf324ae0c4570e6
         with:
           asdf_branch: v0.11.3
-  
+
       - name: Cache asdf
         uses: actions/cache@v4
         with:
@@ -42,8 +40,8 @@ jobs:
         with:
           asdf_branch: v0.11.3
         env:
-          PYTHON_CONFIGURE_OPTS: --enable-shared 
-  
+          PYTHON_CONFIGURE_OPTS: --enable-shared
+
       - name: Install node packages
         run: |
           make install-node
