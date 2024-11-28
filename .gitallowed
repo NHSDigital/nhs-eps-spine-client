@@ -1,0 +1,18 @@
+token: ?"?\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}"?
+github-token: ?"?\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}"?
+token: ?"?\$\{\{\s*secrets\.DEPENDABOT_TOKEN\s*\}\}"?
+id-token: write
+--token=\$\{\{\s*steps\.generate-token\.outputs\.token\s*\}\}
+--token=\$GITHUB-TOKEN
+--token="\$GITHUB-TOKEN"
+.*Gemfile\.lock.*
+.*\.gitallowed.*
+.*nhsd-rules-deny.txt.*
+.*\.venv.*
+.*node_modules.*
+.:src/resources/clinical_content_view.*root=*
+.:src/resources/clinical_content_view.*codeSystem=*
+.:src/resources/prescription_search.*root=*
+.:src/live-spine-client.*root=*
+0ba20a521167058a74f3b6e65c42d732054e5753:docs.*
+0ba20a521167058a74f3b6e65c42d732054e5753:scripts/.*
