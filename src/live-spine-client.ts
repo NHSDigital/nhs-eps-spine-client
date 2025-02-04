@@ -49,7 +49,7 @@ interface ClinicalContentViewPartials {
 
 export interface PrescriptionSearchParams {
   requestId: string,
-  prescriptionId: string,
+  prescriptionId?: string,
   organizationId: string,
   sdsRoleProfileId: string,
   sdsId: string,
