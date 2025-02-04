@@ -46,7 +46,7 @@ export default `<?xml version="1.0" encoding="utf-8"?>
                     <AgentPersonSDS classCode="AGNT">
                         <id root="1.2.826.0.1285.0.2.0.67" extension="{{agentPersonSDSRoleProfileId}}"/>
                         <agentPersonSDS classCode="PSN" determinerCode="INSTANCE">
-                            <id root="1.2.826.0.1285.0.2.0.65" extension="{{sdsRoleProfileId}}"/>
+                            <id root="1.2.826.0.1285.0.2.0.65" extension="{{agentPersonSDSId}}"/>
                         </agentPersonSDS>
                         <part typeCode="PART">
                             <partSDSRole classCode="ROL">
