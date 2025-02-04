@@ -288,6 +288,9 @@ export class LiveSpineClient implements SpineClient {
       }
 
       const requestBody = Mustache.render(PRESCRIPTION_SEARCH_TEMPLATE, partials)
+      this.logger.info("--------------------------------------")
+      this.logger.info(requestBody)
+      this.logger.info("--------------------------------------")
 
       this.logger.info(`Making request to ${address}`)
       const response = await this.axiosInstance.post(address, requestBody, {
