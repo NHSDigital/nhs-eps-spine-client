@@ -263,7 +263,7 @@ export class LiveSpineClient implements SpineClient {
         "nhsd-request-id": inboundHeaders["nhsd-request-id"],
         "x-request-id": inboundHeaders["x-request-id"],
         "x-correlation-id": inboundHeaders["x-correlation-id"],
-        "SOAPAction": "urn:nhs:names:services:mmquery/PRESCRIPTIONSEARCH_SM01"
+        "SOAPAction": "urn:nhs:names:services:mmquery/PrescriptionSearchSyncAsync_1_0"
       }
 
       const partials: PrescriptionSearchPartials = {

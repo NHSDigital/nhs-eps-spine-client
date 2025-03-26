@@ -3,7 +3,7 @@ export default `<?xml version="1.0" encoding="utf-8"?>
 <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:hl7="urn:hl7-org:v3">
     <SOAP-ENV:Header>
         <wsa:MessageID>uuid:{{messageGUID}}</wsa:MessageID>
-        <wsa:Action>urn:nhs:names:services:mmquery/PRESCRIPTIONSEARCH_SM01</wsa:Action>
+        <wsa:Action>urn:nhs:names:services:mmquery/PrescriptionSearchSyncAsync_1_0</wsa:Action>
         <wsa:To>https://pds-sync.national.ncrs.nhs.uk/syncservice-pds/pds</wsa:To>
         <wsa:From>
             <wsa:Address/>
@@ -23,11 +23,11 @@ export default `<?xml version="1.0" encoding="utf-8"?>
         </wsa:ReplyTo>
     </SOAP-ENV:Header>
     <SOAP-ENV:Body>
-        <PRESCRIPTIONSEARCH_SM01 xmlns="urn:hl7-org:v3">
+        <PrescriptionSearchSyncAsync_1_0 xmlns="urn:hl7-org:v3">
             <id root="{{messageGUID}}"/>
             <creationTime value="{{creationTime}}"/>
             <versionCode code="V3NPfIT4.2.00"/>
-            <interactionId root="2.16.840.1.113883.2.1.3.2.4.12" extension="PRESCRIPTIONSEARCH_SM01"/>
+            <interactionId root="2.16.840.1.113883.2.1.3.2.4.12" extension="PrescriptionSearchSyncAsync_1_0"/>
             <processingCode code="P"/>
             <processingModeCode code="T"/>
             <acceptAckCode code="NE"/>
@@ -109,6 +109,6 @@ export default `<?xml version="1.0" encoding="utf-8"?>
                     {{/mySiteOrganisation}}
                 </query>
             </ControlActEvent>
-        </PRESCRIPTIONSEARCH_SM01>
+        </PrescriptionSearchSyncAsync_1_0>
     </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>`
