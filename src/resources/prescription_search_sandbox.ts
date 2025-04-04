@@ -2,7 +2,7 @@
 export default `<SOAP:Envelope xmlns:crs="http://national.carerecords.nhs.uk/schema/crs/" xmlns:SOAP="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns="urn:hl7-org:v3" xmlns:hl7="urn:hl7-org:v3">
 <SOAP:Header>
     <wsa:MessageID>uuid:1234567890123456</wsa:MessageID>
-    <wsa:Action>urn:nhs:names:services:mmquery/PRESCRIPTIONSEARCHRESPONSE_SM01</wsa:Action>
+    <wsa:Action>urn:nhs:names:services:mmquery/PrescriptionSearchSyncAsync_1_0</wsa:Action>
     <wsa:To/>
     <wsa:From>
         <wsa:Address>https://mmquery.national.ncrs.nhs.uk/syncservice</wsa:Address>
@@ -21,11 +21,11 @@ export default `<SOAP:Envelope xmlns:crs="http://national.carerecords.nhs.uk/sch
 </SOAP:Header>
 <SOAP:Body>
     <prescriptionSearchResponse>
-        <PRESCRIPTIONSEARCHRESPONSE_SM01>
+        <PrescriptionSearchSyncAsync_1_0>
             <id root="1234567890123456"/>
             <creationTime value="20130614090835"/>
             <versionCode code="V3NPfIT3.0"/>
-            <interactionId root="2.16.840.1.113883.2.1.3.2.4.12" extension="PRESCRIPTIONSEARCHRESPONSE_SM01"/>
+            <interactionId root="2.16.840.1.113883.2.1.3.2.4.12" extension="PrescriptionSearchSyncAsync_1_0"/>
             <processingCode code="P"/>
             <processingModeCode code="T"/>
             <acceptAckCode code="NE"/>
@@ -127,7 +127,7 @@ export default `<SOAP:Envelope xmlns:crs="http://national.carerecords.nhs.uk/sch
                     <queryResponseCode code="OK"/>
                 </queryAck>
             </ControlActEvent>
-        </PRESCRIPTIONSEARCHRESPONSE_SM01>
+        </PrescriptionSearchSyncAsync_1_0>
     </prescriptionSearchResponse>
 </SOAP:Body>
 </SOAP:Envelope>`
