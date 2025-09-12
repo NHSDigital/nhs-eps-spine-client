@@ -41,7 +41,7 @@
     "@aws-lambda-powertools/logger": "^2.25.2",
     "@types/mustache": "^4.2.6",
     "aws-lambda": "^1.0.7",
-    "axios": "^1.11.0",
+    "axios": "^1.12.1",
     "axios-retry": "^4.5.0",
     "conventional-changelog-eslint": "^6.0.0",
     "mustache": "^4.2.0"
