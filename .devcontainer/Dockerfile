@@ -18,7 +18,7 @@ RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.3; \
     echo '. $HOME/.asdf/asdf.sh' >> ~/.bashrc; \
     echo '. $HOME/.asdf/completions/asdf.bash' >> ~/.bashrc;
 
-ENV PATH="$PATH:/home/vscode/.asdf/bin/:/workspaces/nhs-eps-spine-client/node_modules/.bin"
+ENV PATH="$PATH:/home/vscode/.asdf/bin/:/workspaces/nhs-eps-spine-client/node_modules/.bins:/home/vscode/.asdf/shims"
 
 # Install ASDF plugins
 RUN asdf plugin add python; \
@@ -32,8 +32,9 @@ WORKDIR /workspaces/nhs-eps-spine-client
 ADD .tool-versions /workspaces/nhs-eps-spine-client/.tool-versions
 ADD .tool-versions /home/vscode/.tool-versions
 
+RUN asdf install python && asdf reshim python
+RUN asdf install poetry && asdf reshim poetry
+
 RUN asdf install; \
-    asdf reshim python; \
-    asdf reshim poetry; \
     asdf reshim nodejs; \
     asdf direnv setup --shell bash --version 2.32.2;

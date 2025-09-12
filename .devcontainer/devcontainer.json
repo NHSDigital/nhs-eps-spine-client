@@ -59,6 +59,8 @@
       }
     }
   },
-  "remoteEnv": { "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}" },
-  "postCreateCommand": "rm -f ~/.docker/config.json; git config --global --add safe.directory /workspaces/nhs-eps-spine-client; make install; direnv allow ."
+  "remoteEnv": {
+    "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+  },
+  "postCreateCommand": "rm -f ~/.docker/config.json; git config --global --add safe.directory /workspaces/nhs-eps-spine-client; make install; direnv allow . && docker build -f https://raw.githubusercontent.com/NHSDigital/eps-workflow-quality-checks/refs/tags/v4.0.4/dockerfiles/nhsd-git-secrets.dockerfile -t git-secrets . && poetry run pre-commit install --install-hooks -f"
 }
