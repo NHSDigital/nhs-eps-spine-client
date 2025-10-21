@@ -1,5 +1,12 @@
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
+
+ARG TARGETARCH
+ENV TARGETARCH=${TARGETARCH}
+
+ARG ASDF_VERSION
+COPY .tool-versions.asdf /tmp/.tool-versions.asdf
+
 # System updates
 RUN apt-get update \
     && export DEBIAN_FRONTEND=noninteractive \
@@ -11,12 +18,14 @@ RUN apt-get update \
 RUN apt-get -y install --no-install-recommends \
     libffi-dev libsqlite3-dev
 
+# Install ASDF
+RUN ASDF_VERSION=$(awk '!/^#/ && NF {print $1; exit}' /tmp/.tool-versions.asdf) && \
+    wget -O /tmp/asdf.tar.gz https://github.com/asdf-vm/asdf/releases/download/v${ASDF_VERSION}/asdf-v${ASDF_VERSION}-linux-amd64.tar.gz; \
+    tar -xvzf /tmp/asdf.tar.gz; \
+    mv asdf /usr/bin
+
 USER vscode
 
-# Install ASDF
-RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.3; \
-    echo '. $HOME/.asdf/asdf.sh' >> ~/.bashrc; \
-    echo '. $HOME/.asdf/completions/asdf.bash' >> ~/.bashrc;
 
 ENV PATH="$PATH:/home/vscode/.asdf/bin/:/workspaces/nhs-eps-spine-client/node_modules/.bins:/home/vscode/.asdf/shims"
 
@@ -32,9 +41,6 @@ WORKDIR /workspaces/nhs-eps-spine-client
 ADD .tool-versions /workspaces/nhs-eps-spine-client/.tool-versions
 ADD .tool-versions /home/vscode/.tool-versions
 
-RUN asdf install python && asdf reshim python
-RUN asdf install poetry && asdf reshim poetry
 
-RUN asdf install; \
-    asdf reshim nodejs; \
-    asdf direnv setup --shell bash --version 2.32.2;
+RUN asdf install python; \
+    asdf install
