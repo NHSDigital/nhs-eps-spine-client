@@ -37,4 +37,5 @@ jobs:
       branch_name: main
       publish_package: true
       tag_format: ${{ needs.get_asdf_version.outputs.tag_format }}
-    secrets: inherit
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
