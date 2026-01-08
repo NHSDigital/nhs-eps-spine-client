@@ -37,7 +37,8 @@ deep-clean: clean
 check-licenses: check-licenses-node check-licenses-python
 
 check-licenses-node:
-	npm run check-licenses
+	echo "not currently implemented from makefile"
+	exit 1
 
 check-licenses-python:
 	scripts/check_python_licenses.sh
