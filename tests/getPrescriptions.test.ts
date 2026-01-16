@@ -1,4 +1,5 @@
 import {LiveSpineClient} from "../src/live-spine-client"
+import {InboundHeaders} from "../src/spine-client"
 import {jest, expect, describe} from "@jest/globals"
 import MockAdapter from "axios-mock-adapter"
 import axios from "axios"
@@ -24,7 +25,7 @@ describe("live getPrescriptions", () => {
   test("successful response when http response is status 200 and spine status does not exist", async () => {
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
     const spineClient = new LiveSpineClient(logger)
-    const headers: Record<string, string> = {
+    const headers: InboundHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
     const spineResponse = await spineClient.getPrescriptions(headers)
@@ -37,7 +38,7 @@ describe("live getPrescriptions", () => {
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(200, {resourceType: "Bundle"})
     const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
     const spineClient = new LiveSpineClient(logger)
-    const headers: Record<string, string> = {
+    const headers: InboundHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
     await spineClient.getPrescriptions(headers)
@@ -49,7 +50,7 @@ describe("live getPrescriptions", () => {
     mock.onGet("https://spine/mm/patientfacingprescriptions").reply(401)
     const mockLoggerInfo = jest.spyOn(Logger.prototype, "info")
     const spineClient = new LiveSpineClient(logger)
-    const headers: Record<string, string> = {
+    const headers: InboundHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
     await expect(spineClient.getPrescriptions(headers)).rejects.toThrow("Request failed with status code 401")
@@ -77,7 +78,7 @@ describe("live getPrescriptions", () => {
     async ({httpResponseCode, spineStatusCode, nhsdLoginUser, errorMessage}) => {
       mock.onGet("https://spine/mm/patientfacingprescriptions").reply(httpResponseCode, {statusCode: spineStatusCode})
       const spineClient = new LiveSpineClient(logger)
-      const headers: Record<string, string> = {
+      const headers: InboundHeaders = {
         "nhsd-nhslogin-user": nhsdLoginUser
       }
       await expect(spineClient.getPrescriptions(headers)).rejects.toThrow(errorMessage)
@@ -88,7 +89,7 @@ describe("live getPrescriptions", () => {
     mock.onGet("https://spine/mm/patientfacingprescriptions").networkError()
 
     const spineClient = new LiveSpineClient(logger)
-    const headers: Record<string, string> = {
+    const headers: InboundHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
     await expect(spineClient.getPrescriptions(headers)).rejects.toThrow("Network Error")
@@ -98,7 +99,7 @@ describe("live getPrescriptions", () => {
     mock.onGet("https://spine/mm/patientfacingprescriptions").timeout()
 
     const spineClient = new LiveSpineClient(logger)
-    const headers: Record<string, string> = {
+    const headers: InboundHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
     await expect(spineClient.getPrescriptions(headers)).rejects.toThrow("timeout of 45000ms exceeded")
@@ -112,7 +113,7 @@ describe("live getPrescriptions", () => {
     const mockLoggerWarn = jest.spyOn(Logger.prototype, "warn")
 
     const spineClient = new LiveSpineClient(logger)
-    const headers: Record<string, string> = {
+    const headers: InboundHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
     const spineResponse = await spineClient.getPrescriptions(headers)
@@ -127,7 +128,7 @@ describe("live getPrescriptions", () => {
     const mockLoggerWarn = jest.spyOn(Logger.prototype, "warn")
 
     const spineClient = new LiveSpineClient(logger)
-    const headers: Record<string, string> = {
+    const headers: InboundHeaders = {
       "nhsd-nhslogin-user": "P9:9912003071"
     }
     await expect(spineClient.getPrescriptions(headers)).rejects.toThrow("Network Error")

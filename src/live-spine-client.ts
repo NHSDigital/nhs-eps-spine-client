@@ -1,6 +1,6 @@
 import {Logger} from "@aws-lambda-powertools/logger"
 import {serviceHealthCheck} from "./status"
-import {SpineClient, SpineStatus} from "./spine-client"
+import {SpineClient, SpineStatus, InboundHeaders} from "./spine-client"
 import {Agent} from "https"
 import axios, {
   AxiosError,
@@ -139,7 +139,7 @@ export class LiveSpineClient implements SpineClient {
     })
 
   }
-  async getPrescriptions(inboundHeaders: Record<string, string>): Promise<AxiosResponse> {
+  async getPrescriptions(inboundHeaders: InboundHeaders): Promise<AxiosResponse> {
     try {
       const address = this.getSpineEndpoint("mm/patientfacingprescriptions")
       // nhsd-nhslogin-user looks like P9:9912003071
@@ -208,7 +208,7 @@ export class LiveSpineClient implements SpineClient {
   }
 
   async clinicalView(
-    inboundHeaders: Record<string, string>,
+    inboundHeaders: InboundHeaders,
     params: ClinicalViewParams
   ): Promise<AxiosResponse> {
     try {
@@ -251,7 +251,7 @@ export class LiveSpineClient implements SpineClient {
   }
 
   async prescriptionSearch(
-    inboundHeaders: Record<string, string>,
+    inboundHeaders: InboundHeaders,
     params: PrescriptionSearchParams
   ): Promise<AxiosResponse> {
     try {

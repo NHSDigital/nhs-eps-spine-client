@@ -10,16 +10,18 @@ export interface SpineStatus {
   spineStatus?: StatusCheckResponse
 }
 
+export type InboundHeaders = Record<string, string | undefined>
+
 export interface SpineClient {
   getStatus(): Promise<SpineStatus>
-  getPrescriptions(inboundHeaders: Record<string, string>): Promise<AxiosResponse>
+  getPrescriptions(inboundHeaders: InboundHeaders): Promise<AxiosResponse>
   isCertificateConfigured(): boolean
   clinicalView(
-    inboundHeaders: Record<string, string>,
+    inboundHeaders: InboundHeaders,
     params: ClinicalViewParams
   ): Promise<AxiosResponse>
   prescriptionSearch(
-    inboundHeaders: Record<string, string>,
+    inboundHeaders: InboundHeaders,
     params: PrescriptionSearchParams
   ): Promise<AxiosResponse>
 }
