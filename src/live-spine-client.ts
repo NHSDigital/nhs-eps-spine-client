@@ -8,7 +8,6 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse
 } from "axios"
-import {APIGatewayProxyEventHeaders} from "aws-lambda"
 import axiosRetry from "axios-retry"
 import {handleCallError, handleErrorResponse} from "./utils"
 import Mustache from "mustache"
@@ -140,7 +139,7 @@ export class LiveSpineClient implements SpineClient {
     })
 
   }
-  async getPrescriptions(inboundHeaders: APIGatewayProxyEventHeaders): Promise<AxiosResponse> {
+  async getPrescriptions(inboundHeaders: Record<string, string>): Promise<AxiosResponse> {
     try {
       const address = this.getSpineEndpoint("mm/patientfacingprescriptions")
       // nhsd-nhslogin-user looks like P9:9912003071
@@ -209,7 +208,7 @@ export class LiveSpineClient implements SpineClient {
   }
 
   async clinicalView(
-    inboundHeaders: APIGatewayProxyEventHeaders,
+    inboundHeaders: Record<string, string>,
     params: ClinicalViewParams
   ): Promise<AxiosResponse> {
     try {
@@ -252,7 +251,7 @@ export class LiveSpineClient implements SpineClient {
   }
 
   async prescriptionSearch(
-    inboundHeaders: APIGatewayProxyEventHeaders,
+    inboundHeaders: Record<string, string>,
     params: PrescriptionSearchParams
   ): Promise<AxiosResponse> {
     try {
