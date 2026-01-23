@@ -19,7 +19,7 @@ jobs:
       tag_format: ${{ steps.load-config.outputs.TAG_FORMAT }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Get asdf version
         id: asdf-version
@@ -38,7 +38,7 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   pr_title_format_check:
-    uses: NHSDigital/eps-common-workflows/.github/workflows/pr_title_check.yml@a2edde3fb0e9816a25a5ba4923b4d509db83f552
+    uses: NHSDigital/eps-common-workflows/.github/workflows/pr_title_check.yml@b933ef1bb3527fd7e7d5a7629fbd4e4dd94bf1b4
 
   tag_release:
     needs: [get_asdf_version]
