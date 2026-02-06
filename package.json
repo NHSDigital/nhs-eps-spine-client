@@ -22,7 +22,7 @@
   "type": "module",
   "devDependencies": {
     "@types/jest": "^29.5.14",
-    "@types/node": "^25.1.0",
+    "@types/node": "^25.2.1",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
     "axios-mock-adapter": "^2.1.0",
