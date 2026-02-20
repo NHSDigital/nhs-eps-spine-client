@@ -26,7 +26,7 @@
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.55.0",
     "axios-mock-adapter": "^2.1.0",
-    "eslint": "^9.39.2",
+    "eslint": "^10.0.1",
     "eslint-plugin-import-newlines": "^1.4.0",
     "jest": "^30.0.0",
     "ts-jest": "^29.4.6",
