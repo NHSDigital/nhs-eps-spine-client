@@ -1,4 +1,4 @@
-default: deep-clean install lint check-licenses build test
+.PHONY: install lint build test
 
 install: install-python install-hooks install-node
 
@@ -14,13 +14,10 @@ install-node:
 build:
 	npm run build
 
-lint: lint-node lint-githubactions
+lint: lint-node
 
 lint-node:
 	npm run lint
-
-lint-githubactions:
-	actionlint
 
 test: build
 	npm run test
@@ -34,11 +31,5 @@ deep-clean: clean
 	rm -rf .venv
 	find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
 
-check-licenses: check-licenses-node check-licenses-python
-
-check-licenses-node:
-	echo "not currently implemented from makefile"
-	exit 1
-
-check-licenses-python:
-	scripts/check_python_licenses.sh
+%:
+	@$(MAKE) -f /usr/local/share/eps/Mk/common.mk $@
