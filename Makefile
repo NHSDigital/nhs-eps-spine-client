@@ -1,4 +1,4 @@
-.PHONY: install lint check-licenses build test
+.PHONY: install lint build test
 
 install: install-python install-hooks install-node
 
