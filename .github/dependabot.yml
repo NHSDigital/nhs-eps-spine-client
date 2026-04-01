@@ -16,7 +16,7 @@ updates:
       prefix: "Upgrade: [dependabot] - "
     open-pull-requests-limit: 20
     cooldown:
-      default-days: 3
+      default-days: 7
 
   ###################################
   # Poetry  #########################
@@ -32,7 +32,7 @@ updates:
     versioning-strategy: increase
     open-pull-requests-limit: 20
     cooldown:
-      default-days: 3
+      default-days: 7
 
   ###################################
   # NPM     #########################
@@ -48,4 +48,4 @@ updates:
     versioning-strategy: increase
     open-pull-requests-limit: 20
     cooldown:
-      default-days: 3
+      default-days: 7
