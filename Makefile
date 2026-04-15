@@ -9,7 +9,7 @@ install-hooks:
 	poetry run pre-commit install --install-hooks --overwrite
 
 install-node:
-	npm ci
+	npm ci --ignore-scripts
 
 build:
 	npm run build
